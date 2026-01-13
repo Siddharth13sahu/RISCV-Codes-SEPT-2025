@@ -1,62 +1,20 @@
 //*********************************************************************
 //	Copyright 2026 Scaledge India Pvt Ltd - ALl RIghts REserved.
 //	Owner: Samarth Patnaik
-// 	Item : csr_medeleg_st_misalign
-//	Date created : 13/01/26
+// 	Item : csr_read_vendorid
+//	Date created : 11/07/2025
 //*********************************************************************
-//	Description : This testcase verifies that the store address misaligned exception is correctl delegated from M-Mode to S-Mode using medeleg register.
-//********************************************************************
+//	Description : Testcase about reading a csr register, and getting its default value
+//*********************************************************************
 #include "test_macros.h"
 #include "riscv_test.h"
 
 RVTEST_RV64MF
 RVTEST_CODE_BEGIN
 
-test_set_medeleg:
-    li t0, (1<<6)
-    csrw medeleg, t0
-    csrr t0, medeleg 	//not setting 6 bit of medeleg as high
-
-test_set_stvec:
-    la t0, s_trap_handler
-    csrw stvec, t0
-
-test_mode_change:
-    csrr t0, mstatus
-    li t1, ~(3<<11)
-    and t0, t0, t1
-    li t1, (1<<11)
-    or t0, t0, t1
-    csrw mstatus, t0
-
-test_set_mepc:
-    la t0, s_mode_start
-    csrw mepc, t0
-
-    mret
-
-s_mode_start:
-    la t0, inp_data	//load address
-    addi t0, t0, 1 	//Make it misaligned
-    li t1, 0x12345678 	//Get a value to store
-    sw t1, 0(t0)	//Store at the misaligned address
-	
-    //If misalign test fails
-    li t2, 0x99999999
-    j end_test 
-
-s_trap_handler:
-    csrr t0, scause
-    li t1,6
-    bne t0, t1, gen
-
-    j end_test
-
-gen:
-    ecall
-
-end_test:
-    wfi
+read_csr:
+	csrr x1, mvendorid
+	csrw mvendorid, 20
 
   TEST_PASSFAIL
 
