@@ -28,17 +28,22 @@ start1:
 
 
 loop:
+	wfi
+//	nop
 	j	loop
 
 trap_handler:
 	csrr	t0, mcause
+	bgez	t0, exception
+
+	j	interrupt
+
+exception:
 	csrr	t1, mepc
+	addi	t1, t1, 4
+	csrw	mepc,t1
 
-	
-
-    	addi	t1, t1, 4
-    	csrw	mepc, t1
-
+interrupt:
 	mret
 
  TEST_PASSFAIL
