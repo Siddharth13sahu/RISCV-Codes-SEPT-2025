@@ -4,7 +4,14 @@
 //   Item : interrupt handling
 //   Date created : 8/01/2026
 //***********************************************************************************
-//   Description: 
+//   Description:
+//   This code implements basic interrupt and exception handling in RISC-V.
+//   The processor remains in a wait state using the WFI instruction
+//   until an interrupt or exception occurs. On a trap, control is transferred
+//   to the trap handler, which checks the mcause register to distinguish between
+//   an interrupt and an exception. For exceptions, the program counter (mepc)
+//   is incremented to skip the faulting instruction. Execution then returns
+//   from the trap using MRET, resuming normal operation.
 //***********************************************************************************
 
 #include "test_macros.h"
