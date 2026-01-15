@@ -4,11 +4,11 @@
  
 //   Owner: Siddharth Sahu 
  
-//   Item : CSR mode change
-//   Date created : 11/07/2025
+//   Item : test_mstatus_mpp
+//   Date created : 15/01/2026
  
 //***********************************************************************************
-//   Description: Testcase says mode change from M->S->U
+//   Description: Testcase says about the mode jump from M->S and M->U
 //***********************************************************************************
 
 
@@ -18,18 +18,26 @@
 RVTEST_RV64MF
 RVTEST_CODE_BEGIN
 
-      
+       
 machine_entry:
+      addi x3, x0, 0x1 //control bit, if x3=1, M->S, else M->U 
       
-      la   x4, supervisor_entry
       la   x4, user_entry
       csrw mepc, x4
-      
+
       csrr x5, mstatus
       li   x6, ~(3 << 11)   //mstatus.mpp=2'b01 for jump to S-mode 
       and  x5, x5, x6       //mstatus.mpp=2'b00 for jump to U-mode
-      //li   x6, (1 << 11)
-      //or   x5, x5, x6
+      bez x3, x0, label
+
+machine_to_super:
+      li   x6, (1 << 11)
+      or   x5, x5, x6
+      
+      la   x4, supervisor_entry
+      csrw mepc, x4
+
+label:
       csrw mstatus, x5
       csrr x7, mstatus
       
@@ -58,7 +66,6 @@ user_entry:
 
       ret
 
-      
  
 TEST_PASSFAIL
  
@@ -73,51 +80,15 @@ RVTEST_DATA_BEGIN
 inp_data:
   .float 100.25 //0
   .float 200.50 //4
-  .dword 0x0000004 //8
+  .dword 0x00000004 //8
   .float -200.50 //10
-  .float -200.50 //14
-  .dword 0xffffffffffffe7ff //18
+  .float -200.50 //10
+  .dword 0xffffffffffffffff //14
   .word 0x584944fc
   .word 0x558f5366
   .word 0x558f5366
-  .word 0x29df2fb1
-  .word 0x29df2fb1
-  .word 0x40053e92
-  .word 0x40053e92
-  .word 0x17010699
-  .word 0x17010699
-  .word 0x594b9169
-  .word 0x594b9169
-  .word 0x64cd11c7
-  .word 0x64cd11c7
-  .word 0x6133a31e
-  .word 0x6133a31e
-  .word 0x2a9e3a3d
-  .word 0x2a9e3a3d
-  .word 0x59f86117
-  .word 0x59f86117
-  .word 0x39214611
-  .word 0x39214611
-  .word 0x6ec633f5
-  .word 0x6ec633f5
-  .word 0x4910a7b3
-  .word 0x4910a7b3
-  .word 0x3392ec72
-  .word 0x3392ec72
-  .word 0x6c3af175
-  .word 0x6c3af175
-  .word 0x74555adb
-  .word 0x74555adb
-  .word 0x360a50f7
-  .word 0x360a50f7
-  .word 0x39febbec
-  .word 0x39febbec
-  .word 0x28cb8c74
-  .word 0x28cb8c74
+  
+  
  
 RVTEST_DATA_END
-
-
-
-
 
