@@ -1,7 +1,7 @@
 //****************************************************************************************
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Snigdharani Pradhan
-//   Item : interrupt delegation
+//   Item : mideleg
 //   Date created : 9/01/2026
 //***********************************************************************************
 //   Description: Delegation of trap to s mode
@@ -38,6 +38,7 @@ s_mode_start:
 	li	t0, (1<<1)
 	csrs	sip, t0
 
+trap_start:
 	wfi
 	nop
 

@@ -41,6 +41,7 @@ loop:
 
 trap_handler:
 	csrr	t0, mcause
+	csrr	t0, mtval
 	bgez	t0, exception
 
 	j	interrupt

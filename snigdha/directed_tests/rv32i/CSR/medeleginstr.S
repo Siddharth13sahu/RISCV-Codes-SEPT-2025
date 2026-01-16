@@ -1,10 +1,10 @@
 //****************************************************************************************
 //   Copyright 2025 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Snigdharani Pradhan
-//   Item : mstatus
-//   Date created : 12/12/2025
+//   Item : medeleg0
+//   Date created : 13/01/2026
 //***********************************************************************************
-//   Description: Read the default value of the mstatus csr
+//   Description: Instruction address misaligned
 //***********************************************************************************
 
 #include "test_macros.h"
@@ -13,15 +13,36 @@
 RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
-test1:
-	csrr	t0, mstatus
+start1:
+	li	t0, (1<<0)
+	csrw	medeleg, t0
+ 
+	la	t0, trap_handler
+	csrw	mtvec,t0
 
-	TEST_PASSFAIL
+trap_start:
+	li	t1, 5
+	li	t0, 0xffffffff
+	ld	t1, 0(t0)
+	nop
+
+trap_handler:
+	csrr	t0, mcause
+	li		t1,	0
+	bne		t0, t1, trap_exit
+
+	csrr	t0, mepc
+	csrr	t1, mtval
+
+trap_exit:
+	mret
+
+ TEST_PASSFAIL
+
 RVTEST_CODE_END
 
-.data
+	.data
 RVTEST_DATA_BEGIN
-TEST_DATA
+	TEST_DATA
 RVTEST_DATA_END
 
- 

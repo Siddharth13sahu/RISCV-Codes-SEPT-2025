@@ -1,10 +1,10 @@
 //****************************************************************************************
-//   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
+//   Copyright 2025 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Snigdharani Pradhan
-//   Item : csr_instruction
-//   Date created : 12/12/2025
+//   Item : medeleg
+//   Date created : 13/01/2026
 //***********************************************************************************
-//   Description: 
+//   Description: read the bits of medeleg csr
 //***********************************************************************************
 
 #include "test_macros.h"
@@ -13,26 +13,16 @@
 RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
-start:
+start1:
+	li 		t0,	0xffffffffffffffff
+	csrr	t0, medeleg
 
-	li	x1,1
-	li	x2,3
-	li	x3,5
+ TEST_PASSFAIL
 
-test1:	
-
-	csrr	x7,	mhartid
-	csrr	x8,	mvendorid
-	csrr	x9,	mimpid
-	csrr	x10,	marchid
-//	csrr	x11,	mconfigptr
-
-TEST_PASSFAIL
 RVTEST_CODE_END
 
-.data
+	.data
 RVTEST_DATA_BEGIN
-TEST_DATA
+	TEST_DATA
 RVTEST_DATA_END
 
- 

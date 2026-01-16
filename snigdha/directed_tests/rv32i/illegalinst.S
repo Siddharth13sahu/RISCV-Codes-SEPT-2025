@@ -1,10 +1,10 @@
 //****************************************************************************************
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Snigdharani Pradhan
-//   Item : csr_instruction
+//   Item : exception
 //   Date created : 12/12/2025
 //***********************************************************************************
-//   Description: 
+//   Description: exceptions and exception handling
 //***********************************************************************************
 
 #include "test_macros.h"
@@ -14,18 +14,23 @@ RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
 start:
+    la   t0, trap_handler
+    csrw mtvec, t0
 
-	li	x1,1
-	li	x2,3
-	li	x3,5
+    # cause an exception
+    csrc mhartid, x1			//illegal instruction
+	j after_trap
 
-test1:	
+trap_handler:
+    csrr t0, mcause
+    csrr t1, mepc
+	csrr t0, mtval
 
-	csrr	x7,	mhartid
-	csrr	x8,	mvendorid
-	csrr	x9,	mimpid
-	csrr	x10,	marchid
-//	csrr	x11,	mconfigptr
+    addi t1, t1, 4
+    csrw mepc, t1
+
+after_trap:
+	mret
 
 TEST_PASSFAIL
 RVTEST_CODE_END
@@ -33,6 +38,5 @@ RVTEST_CODE_END
 .data
 RVTEST_DATA_BEGIN
 TEST_DATA
-RVTEST_DATA_END
 
- 
+RVTEST_DATA_END

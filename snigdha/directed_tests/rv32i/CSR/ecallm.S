@@ -1,10 +1,10 @@
 //****************************************************************************************
-//   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
+//   Copyright 2025 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Snigdharani Pradhan
-//   Item : delegation
+//   Item : ecallm
 //   Date created : 6/01/2026
 //***********************************************************************************
-//   Description: Generating trap in s mode and handling in s mode using medeleg
+//   Description: ecall in m-mode
 //***********************************************************************************
 
 #include "test_macros.h"
@@ -14,36 +14,30 @@ RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
 start1:
-	li	t0, (1<<9)
+	li	t0, (1<<11)
 	csrw	medeleg, t0
  
-	la	t0, s_trap_handler
-	csrw	stvec, t0
+	la	t0, m_trap_handler
+	csrw	mtvec, t0
 
 	li	t0, (1<<11)
    	csrs	mstatus, t0
 
-        la	t0, s_mode_start
-    	csrw	mepc, t0
-	
-	mret
-
-s_mode_start:
+trap_start:
 	ecall
 	nop
 
-s_trap_handler:
-	csrr	t0, scause
-	li	t1,	9
-	bne	t0, t1, s_trap_exit
+m_trap_handler:
+	csrr	t0, mcause
+	li	t1,	11
+	bne	t0, t1, m_trap_exit
 
-	csrr	t1, stval
 	csrr	t0, sepc
 	addi	t0, t0, 4
 	csrw	sepc, t0
 
-s_trap_exit:
-	sret
+m_trap_exit:
+	mret
 
  TEST_PASSFAIL
 

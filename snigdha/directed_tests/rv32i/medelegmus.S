@@ -44,7 +44,7 @@ u_mode_start:
 
 s_trap_handler:
 	csrr	t0, scause
-	li	t1,	9
+	li	t1,	8
 	bne	t0, t1, s_trap_exit
 
 	csrr 	t0, sepc
