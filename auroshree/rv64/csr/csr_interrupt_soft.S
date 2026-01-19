@@ -1,3 +1,13 @@
+//****************************************************************************************
+//   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
+//   Owner: Auroshree Anuvab Raj 
+//   Item : CSR Read
+//   Date created : 11/07/2025
+//***********************************************************************************
+//   Description: The following testcase is about generating a software interrupt and handle it in m mode 
+//***********************************************************************************
+
+
 #include "test_macros.h"
 #include "riscv_test.h"
 

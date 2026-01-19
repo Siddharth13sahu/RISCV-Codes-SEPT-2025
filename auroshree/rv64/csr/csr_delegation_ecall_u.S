@@ -4,89 +4,76 @@
 //   Item : CSR Read
 //   Date created : 11/07/2025
 //***********************************************************************************
-//   Description: The following testcase is about generating a timer interrupt and software interrupt simultaneously in s mode and handling in s mode 
+//   Description: The following testcase is about generating a ecall trap in u mode and handling in s mode 
 //***********************************************************************************
 
 
 #include "test_macros.h"
 #include "riscv_test.h"
-
-.equ MTIME,     0x0200BFF8
-.equ MTIMECMP,  0x02004000
-.equ MSIP,  	 0x02000000
-
 RVTEST_RV64MF
 RVTEST_CODE_BEGIN
  
 start:
 
-//set up mtvec
-la		x5,		trap_handler
+//delegate load misalignment
+li		x12,	0xffffffff
+csrw	medeleg,	x12
+li		x11,	(1<<8)		//exception 8(ecall from u mode)
+csrw	medeleg,	x11
+csrr	x11,	medeleg
+
+//install m and s mode trap handler
+handle_in_s:
+la		x5,	s_trap_handle
+csrw	stvec,	x5
+la		x5,	m_trap_handle
 csrw	mtvec,	x5
 
-//enable machine timer
-li		x6,	(1<<7) | (1<<3)
-csrw	mie,	x6
-
-//enable global interrupt
+//mode m->s
 csrr	x6,	mstatus
-ori	x6,	x6,	(1<<3) 	//mie field
+li		x7,	~(3<<11)
+and	x6,	x6,	x7		//mpp=m->u
+li		x7,	(1<<11)
+or		x6,	x6,	x7		//mpp=u->s
 csrw	mstatus,		x6
 
-//program timer(mtimecmp)
-li		x7,		MTIME
-ld		x8,		0(x7)		//x8=current time
-li		x9,		100
-add	x8,		x8,		x9		//x8=time when interrupt happens
-li		x7,		MTIMECMP		
-sd		x8,		0(x7)			//mti pending
-wait:
-		li		x10,	MTIME
-		ld		x11,	0(x10)
-		blt	x11,	x8,	wait
-li		x6,		MSIP
-li		x9,		1
-sw		x9,		0(x6)			//msi pending
-
-wait_loop:
-wfi
-addi	x18,	x18,	1		//interrupt counter
-j	wait_loop
-
-trap_handler:
-csrr	x6,	mcause
-bgez	x6,	handle_except	//msb=0--->exception
-
-handle_interrupt:
-li		x7,	7						//mti status
-andi	x8,	x6,	0xff 			//masking off lower 8 bits to get only value 7 for comparison
-beq	x8,	x7,	timer_interrupt
-li		x7,	3						//msi status
-beq	x8,	x7,	software_interrupt
-j	trap_exit
-
-timer_interrupt:
-li		x7,	MTIME
-ld		x8,	0(x7)
-li		x9,	100
-add	x8,	x8,	x9
-li		x7,	MTIMECMP
-sd		x8,	0(x7)
-j	trap_exit
-
-software_interrupt:
-li		x7,	MSIP
-li		x8,	0
-sw		x8,	0(x7)
-j		trap_exit
-
-handle_except:
-j	handle_except
-
-trap_exit:
+la		x8,	super_entry
+csrw	mepc,	x8
 mret
 
+super_entry:
+csrr	x6,	sstatus
+li		x7,	~(1<<8)
+and	x6,	x6,	x7
+csrw	sstatus,		x6
 
+la		x8,	user_entry
+csrw	sepc,	x8
+sret
+
+user_entry:
+addi 	x12,	x12,	1
+ecall
+
+u_after:
+j 		u_after
+
+
+s_trap_handle:
+csrr	x5,	scause
+csrr	x6,	sepc
+csrr	x7,	stval
+
+addi	x6,	x6,	4
+csrw	sepc,	x6
+sret
+
+
+m_trap_handle:
+j	m_trap_handle
+
+
+      
 TEST_PASSFAIL
 RVTEST_CODE_END
   .data
@@ -134,3 +121,4 @@ inp_data:
   .word 0x28cb8c74
   .word 0x28cb8c74
 RVTEST_DATA_END
+

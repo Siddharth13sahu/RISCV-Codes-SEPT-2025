@@ -1,11 +1,14 @@
+
+
 //****************************************************************************************
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Auroshree Anuvab Raj 
 //   Item : CSR Read
 //   Date created : 11/07/2025
 //***********************************************************************************
-//   Description: The following testcase is about generating a timer interrupt and software interrupt simultaneously in s mode and handling in s mode 
+//   Description: The following testcase is about observing the changing value of sstatus.spie by generating a timer interrupt in s mode and handling it in s mode
 //***********************************************************************************
+
 
 
 #include "test_macros.h"
@@ -13,59 +16,79 @@
 
 .equ MTIME,     0x0200BFF8
 .equ MTIMECMP,  0x02004000
-.equ MSIP,  	 0x02000000
 
 RVTEST_RV64MF
 RVTEST_CODE_BEGIN
  
 start:
+//delegate interrupt
+li		x7,	(1<<5)		//supervisor time interrupt=5
+csrw	mideleg,	x7
+csrr	x7,	mideleg
 
 //set up mtvec
 la		x5,		trap_handler
 csrw	mtvec,	x5
+la		x5,		s_trap_handler
+csrw	stvec,	x5
 
+//mode change
+li		x9,	(5<<5)
+csrw	mie,	x9
+csrr	x6,	mstatus
+li		x7,	~(3<<11)
+and	x6,	x6,	x7
+li		x7,	(1<<11)
+or	x6,	x6,	x7
+csrw	mstatus,		x6
+
+la		x8,	supervisor
+csrw	mepc,	x8
+mret
+
+supervisor:
 //enable machine timer
-li		x6,	(1<<7) | (1<<3)
-csrw	mie,	x6
+li		x6,	(1<<5)	//stie
+csrw	sie,	x6
 
 //enable global interrupt
-csrr	x6,	mstatus
-ori	x6,	x6,	(1<<3) 	//mie field
-csrw	mstatus,		x6
+csrr	x6,	sstatus
+ori	x6,	x6,	(1<<1) 	//sie bit is enabled
+csrw	sstatus,		x6
 
 //program timer(mtimecmp)
 li		x7,		MTIME
 ld		x8,		0(x7)		//x8=current time
 li		x9,		100
-add	x8,		x8,		x9		//x8=time when interrupt happens
-li		x7,		MTIMECMP		
-sd		x8,		0(x7)			//mti pending
-wait:
-		li		x10,	MTIME
-		ld		x11,	0(x10)
-		blt	x11,	x8,	wait
-li		x6,		MSIP
-li		x9,		1
-sw		x9,		0(x6)			//msi pending
+add	x8,	x8,	x9		//x8=time when interrupt happens
+li		x7,	MTIMECMP		
+sd		x8,	0(x7)
 
 wait_loop:
+csrr	x6,	sstatus
+csrr	x7,	sie
 wfi
-addi	x18,	x18,	1		//interrupt counter
+addi	x18,	x18,	1		
 j	wait_loop
 
-trap_handler:
-csrr	x6,	mcause
-bgez	x6,	handle_except	//msb=0--->exception
+s_trap_handler:
+csrr	x6,	scause
+bgez	x6,	s_handle_except	//msb=0--->exception
 
 handle_interrupt:
-li		x7,	7						//mti status
-andi	x8,	x6,	0xff 			//masking off lower 8 bits to get only value 7 for comparison
+li		x7,	5	
+andi	x8,	x6,	0xff 			
 beq	x8,	x7,	timer_interrupt
-li		x7,	3						//msi status
-beq	x8,	x7,	software_interrupt
 j	trap_exit
 
 timer_interrupt:
+csrr	x10,	scause	
+csrr	x11,	sstatus				//check the sie bit
+andi	x12,	x11,	(1<<5)      //masking off
+bnez	x12,	continue
+ecall
+
+continue:
 li		x7,	MTIME
 ld		x8,	0(x7)
 li		x9,	100
@@ -74,17 +97,14 @@ li		x7,	MTIMECMP
 sd		x8,	0(x7)
 j	trap_exit
 
-software_interrupt:
-li		x7,	MSIP
-li		x8,	0
-sw		x8,	0(x7)
-j		trap_exit
+s_handle_except:
+j	s_handle_except
 
-handle_except:
-j	handle_except
+trap_handler:
+j	trap_handler
 
 trap_exit:
-mret
+sret
 
 
 TEST_PASSFAIL
@@ -134,3 +154,5 @@ inp_data:
   .word 0x28cb8c74
   .word 0x28cb8c74
 RVTEST_DATA_END
+
+

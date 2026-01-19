@@ -4,7 +4,7 @@
 //   Item : CSR Read
 //   Date created : 11/07/2025
 //***********************************************************************************
-//   Description: The following testcase is about generating a timer interrupt and software interrupt simultaneously in s mode and handling in s mode 
+//   Description: The following testcase is about generating a timer interrupt and handle it in m mode and observing the behaviour of mie.mtie 
 //***********************************************************************************
 
 
@@ -13,7 +13,6 @@
 
 .equ MTIME,     0x0200BFF8
 .equ MTIMECMP,  0x02004000
-.equ MSIP,  	 0x02000000
 
 RVTEST_RV64MF
 RVTEST_CODE_BEGIN
@@ -24,29 +23,26 @@ start:
 la		x5,		trap_handler
 csrw	mtvec,	x5
 
-//enable machine timer
-li		x6,	(1<<7) | (1<<3)
-csrw	mie,	x6
-
 //enable global interrupt
 csrr	x6,	mstatus
 ori	x6,	x6,	(1<<3) 	//mie field
 csrw	mstatus,		x6
 
+//enable machine timer
+li		x6,	(1<<7)			//mtie bit toggled 1 for timer interrupt
+csrw	mie,	x6
+csrr	x7,	mie
+beq	x7,	x6,	forward_loop  //check the mtie bit for advancing 
+ecall
+
+forward_loop:
 //program timer(mtimecmp)
 li		x7,		MTIME
 ld		x8,		0(x7)		//x8=current time
 li		x9,		100
-add	x8,		x8,		x9		//x8=time when interrupt happens
-li		x7,		MTIMECMP		
-sd		x8,		0(x7)			//mti pending
-wait:
-		li		x10,	MTIME
-		ld		x11,	0(x10)
-		blt	x11,	x8,	wait
-li		x6,		MSIP
-li		x9,		1
-sw		x9,		0(x6)			//msi pending
+add	x8,	x8,	x9		//x8=time when interrupt happens
+li		x7,	MTIMECMP		
+sd		x8,	0(x7)
 
 wait_loop:
 wfi
@@ -58,11 +54,9 @@ csrr	x6,	mcause
 bgez	x6,	handle_except	//msb=0--->exception
 
 handle_interrupt:
-li		x7,	7						//mti status
+li		x7,	7	//mti status
 andi	x8,	x6,	0xff 			//masking off lower 8 bits to get only value 7 for comparison
 beq	x8,	x7,	timer_interrupt
-li		x7,	3						//msi status
-beq	x8,	x7,	software_interrupt
 j	trap_exit
 
 timer_interrupt:
@@ -73,12 +67,6 @@ add	x8,	x8,	x9
 li		x7,	MTIMECMP
 sd		x8,	0(x7)
 j	trap_exit
-
-software_interrupt:
-li		x7,	MSIP
-li		x8,	0
-sw		x8,	0(x7)
-j		trap_exit
 
 handle_except:
 j	handle_except
@@ -134,3 +122,4 @@ inp_data:
   .word 0x28cb8c74
   .word 0x28cb8c74
 RVTEST_DATA_END
+

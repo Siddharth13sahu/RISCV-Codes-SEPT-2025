@@ -1,3 +1,14 @@
+//****************************************************************************************
+//   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
+//   Owner: Auroshree Anuvab Raj 
+//   Item : CSR Read
+//   Date created : 11/07/2025
+//***********************************************************************************
+//   Description: The following testcase is about generating a load and store address misalignment trap in mmode and handling it in mmode
+//***********************************************************************************
+
+
+
 #include "test_macros.h"
 #include "riscv_test.h"
  

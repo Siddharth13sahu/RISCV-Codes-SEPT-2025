@@ -1,3 +1,13 @@
+//****************************************************************************************
+//   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
+//   Owner: Auroshree Anuvab Raj 
+//   Item : CSR Read
+//   Date created : 11/07/2025
+//***********************************************************************************
+//   Description: The following testcase is about observing the default value of mstatus.fs bits and changing it's value to it then observing it's behaviour 
+//***********************************************************************************
+
+
 #include "test_macros.h"
 #include "riscv_test.h"
  
