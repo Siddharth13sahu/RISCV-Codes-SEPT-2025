@@ -1,10 +1,10 @@
 //*********************************************************************
 //	Copyright 2026 Scaledge India Pvt Ltd - ALl RIghts REserved.
 //	Owner: Samarth Patnaik
-// 	Item : csr_mcause_intr
+// 	Item : csr_mcause_brk
 //	Date created : 19/01/2026
 //*********************************************************************
-//	Description : Testcase on the observation of the mideleg register when a timer interrupt is generated
+//	Description : Testcase shows the behaviour of mcause register when an illegal exception is generated in M-mode.
 //*********************************************************************
 #include "test_macros.h"
 #include "riscv_test.h"
@@ -12,24 +12,31 @@
 RVTEST_RV64MF
 RVTEST_CODE_BEGIN
 
-.equ MTIME, 0x200bff8
-.equ MTIMECMP, 0x2004000
+test_read:
+	csrr x1, mcause
+test_store_mepc:
+	la x2, pass
+	csrw mepc, x2
 
-test_mstatus:
-	csrr x1, mstatus
-test_mepc:
-	la x1, test_sv_entry
-	csrw mepc, x1
-test_change_priv:
-	li t0, ~(3<<11)
-	and x1,x1,t0  //clear the 2-bits
-	li t1, (1<<11)
-	or x1,x1,t1   //set the 2-bits (01)
-	csrw mstatus, x1
-test_mideleg:
+test_mtvec:
+	la x1, trap_handler
+	csrw mtvec, x1
+
+test_brk_exc:
+	ebreak
+trap_handler:
+	csrr x5, mcause
+	li x6, (1<<3) 		//Breakpoint exception
+	bne x6, x5, fail
+pass:
+	li x1, 0x80000004
+	csrw mtvec, x1
+	ebreak
+
+fail:
+	ecall	
 	
-	
-	
+.align 4	
 
   TEST_PASSFAIL
 

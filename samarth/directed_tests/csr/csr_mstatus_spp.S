@@ -1,10 +1,10 @@
 //*********************************************************************
 //	Copyright 2026 Scaledge India Pvt Ltd - ALl RIghts REserved.
 //	Owner: Samarth Patnaik
-// 	Item : csr_mcause_intr
+// 	Item :csr_mstatus_spp
 //	Date created : 19/01/2026
 //*********************************************************************
-//	Description : Testcase on the observation of the mideleg register when a timer interrupt is generated
+//	Description : Testcase about sstatus, changing mode from S --> U.
 //*********************************************************************
 #include "test_macros.h"
 #include "riscv_test.h"
@@ -12,24 +12,44 @@
 RVTEST_RV64MF
 RVTEST_CODE_BEGIN
 
-.equ MTIME, 0x200bff8
-.equ MTIMECMP, 0x2004000
-
-test_mstatus:
+test_read_mstatus:
 	csrr x1, mstatus
-test_mepc:
-	la x1, test_sv_entry
-	csrw mepc, x1
-test_change_priv:
+
+test_store_mepc:
+	la x2, test_s_entry
+	csrw mepc, x2
+
+test_change_priv_s:
 	li t0, ~(3<<11)
 	and x1,x1,t0  //clear the 2-bits
 	li t1, (1<<11)
 	or x1,x1,t1   //set the 2-bits (01)
 	csrw mstatus, x1
-test_mideleg:
+	mret 
+test_s_entry:
+	csrr x1, sstatus
+	la x2, test_u_entry
+	csrw sepc, x2
+	la x2, test_trap_handler
+	csrw stvec, x2
 	
-	
-	
+	li t0, ~(3<<11)
+	and x1,x1,t0  //clear the 2-bits
+	csrw sstatus, x1
+
+	sret
+
+test_u_entry:
+//	li x2, 0x99999999
+//	li x2, 0x80000004
+	ecall
+.align 4
+
+test_trap_handler:
+	csrr x1, sstatus
+	li x2, 0x80000004
+	csrw stvec, x2	
+	ecall
 
   TEST_PASSFAIL
 

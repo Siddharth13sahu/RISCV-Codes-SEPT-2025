@@ -4,7 +4,7 @@
 // 	Item : csr_mcause_intr
 //	Date created : 19/01/2026
 //*********************************************************************
-//	Description : Testcase on the observation of the mideleg register when a timer interrupt is generated
+//	Description : Testcase shows the behaviour of mcause register when a timer interrupt is generated in M-mode.
 //*********************************************************************
 #include "test_macros.h"
 #include "riscv_test.h"
@@ -15,21 +15,42 @@ RVTEST_CODE_BEGIN
 .equ MTIME, 0x200bff8
 .equ MTIMECMP, 0x2004000
 
-test_mstatus:
-	csrr x1, mstatus
-test_mepc:
-	la x1, test_sv_entry
-	csrw mepc, x1
-test_change_priv:
-	li t0, ~(3<<11)
-	and x1,x1,t0  //clear the 2-bits
-	li t1, (1<<11)
-	or x1,x1,t1   //set the 2-bits (01)
-	csrw mstatus, x1
-test_mideleg:
+test_read:
+	csrr x1, mcause
+test_store_mepc:
+	la x2, pass
+	csrw mepc, x2
+
+test_mtvec:
+	la x1, trap_handler
+	csrw mtvec, x1
+
+test_intr_gen:
+	li t0, MTIME
+	ld x1, 0(t0)
+	li x2, 1000
+	add x2, x2,x1
+	li t1, MTIMECMP
+	sd x2, 0(t1)
+
+test_wait_intr:
+	wfi
+	j test_wait_intr		
+
+trap_handler:
+	csrr x5, mcause
+	li x6, (1<<7) 		//Timer Interrupt
+	bne x6, x5, fail
+	mret
+pass:
+	li x1, 0x80000004
+	csrw mtvec, x1
+	ecall
+
+fail:
+	ebreak	
 	
-	
-	
+.align 4	
 
   TEST_PASSFAIL
 

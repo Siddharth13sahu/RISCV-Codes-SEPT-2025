@@ -1,10 +1,10 @@
 //*********************************************************************
 //	Copyright 2026 Scaledge India Pvt Ltd - ALl RIghts REserved.
 //	Owner: Samarth Patnaik
-// 	Item : csr_mcause_intr
+// 	Item : csr_mstatus_mie_mpie
 //	Date created : 19/01/2026
 //*********************************************************************
-//	Description : Testcase on the observation of the mideleg register when a timer interrupt is generated
+//	Description : Testcase about mstatus, verify that the mie and mpie bits is set to high when an interrupt is generated.
 //*********************************************************************
 #include "test_macros.h"
 #include "riscv_test.h"
@@ -15,21 +15,42 @@ RVTEST_CODE_BEGIN
 .equ MTIME, 0x200bff8
 .equ MTIMECMP, 0x2004000
 
-test_mstatus:
-	csrr x1, mstatus
-test_mepc:
-	la x1, test_sv_entry
-	csrw mepc, x1
-test_change_priv:
-	li t0, ~(3<<11)
-	and x1,x1,t0  //clear the 2-bits
-	li t1, (1<<11)
-	or x1,x1,t1   //set the 2-bits (01)
-	csrw mstatus, x1
-test_mideleg:
+test_read_mie:
+	la x1, test_trap
+	csrw mtvec, x1
+
+	csrr x2, mie 
 	
+test_set_mie:
+	li x3, (1<<7)
+	csrw mie, x3  //for mie
+
+	csrr x4, mstatus
+    	li x5, (1<<3)
+    	or x4, x4, x5
+    	csrw mstatus, x4 //mie globally
 	
+test_intr_gen:
+	li t0, MTIME
+	ld x1, 0(t0)
+	li x2, 1000
+	add x2, x2,x1
+	li t1, MTIMECMP
+	sd x2, 0(t1)
+
+test_wait_intr:
+	wfi
+	j test_wait_intr
 	
+.align 4
+test_trap:
+	csrr x5, mie
+	csrr x6, mpie
+
+test_clear_trap:
+	csrw mie, x0
+	li x1, 0x80000004
+	csrw mtvec, x1
 
   TEST_PASSFAIL
 
