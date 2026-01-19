@@ -23,7 +23,7 @@ Test_1_trp_trigger:
     
 	ecall	
 	li   	gp,	1
-	j			end_trp
+	j		end_trp
     
 trp_handle:                              
     

@@ -1,10 +1,10 @@
 //****************************************************************************************
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Aniroodh Patnaik 
-//   Item : CSR Read
+//   Item : test_marchid_rd_wr
 //   Date created : 11/07/2025
 //***********************************************************************************
-//   Description: Testcase says floating point instructions based on RV32F ISA
+//   Description: To read and write to the marchid register 
 //***********************************************************************************
  
  

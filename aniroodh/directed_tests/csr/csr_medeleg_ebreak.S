@@ -1,87 +1,80 @@
 //****************************************************************************************
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Aniroodh Patnaik 
-//   Item : test_mtime_intrp 
-//   Date created : 5/01/2026
+//   Item : CSR medeleg
+//   Date created : 11/07/2025
 //***********************************************************************************
 //   Description: 
 //***********************************************************************************
 
 #include "test_macros.h"
 #include "riscv_test.h"
-
 RVTEST_RV64MF
 RVTEST_CODE_BEGIN
 
+
 start:
-    // Install trap handler
-    
-    la	x5,	m_trap_handler
-    csrw	mtvec,	x5
-
-    // Enable machine timer interrupt
-    csrr	x5, 	mie
-    ori	x5, 	x5, (1 << 7)     //MTIE
-    csrw	mie, 	x5
-
-    // Enable global interrupts
-    csrr	x5,	mstatus
-    ori	x5,	x5,	(1 << 3)   //MIE
-    csrw	mstatus,	x5
-
-    // Program MTIMECMP
-    li	x6,	0x0200BFF8       // MTIME
-    ld	x7,	0(x6)            // current time
-
-    li	x28, 	100              // delay
-    add	x7,	x7, 	x28
-
-    li	x29, 	0x02004000       // MTIMECMP hart 0
-    sd	x7, 	0(x29)
-
-wait:
-	wfi
-	j		wait                	  // wait for timer interrupt
-
-
-m_trap_handler:
-   csrr	x5,	mcause
-   csrr	x6,	mepc
-
-    // Check for machine timer interrupt
-   li	x7,	0x8000000000000007
-   bne	x5,	x7,	trap_fail
-
-    // Re-arm timer 
-	li	x28,	0x0200BFF8
-   ld	x29,	0(x28)
-
-   li	x30,	1000
-   add	x29,	x29,	x30
-
-   li	x31,	0x02004000
-   sd	x29,	0(x31)
-	
-	la		x6,	after_time
- 	csrw	mepc,	x6
-
-
-   // Skip interrupted instruction
-//	addi	x6,	x6,	4
-//	csrw	mepc,	x6
-	
+ 
+//delegate load misalignment
+	li		x11,	(1<<3)		//exception 3
+	csrw	medeleg,	x11
+	csrr	x11,	medeleg
+ 
+//install m and s mode trap handler
+handle_in_s:
+	la		x5,	s_trap_handle
+	csrw	stvec,	x5
+	la		x5,	m_trap_handle
+	csrw	mtvec,	x5
+ 
+//mode m->s
+	csrr	x6,	mstatus
+	li		x7,	~(3<<11)
+	and	x6,	x6,	x7		//mpp=u
+	li		x7,	(1<<11)
+	or		x6,	x6,	x7		//mpp=s
+	csrw	mstatus,		x6
+ 
+	la		x8,	super_entry
+	csrw	mepc,	x8
 	mret
-
-after_time:
-	j	after_time
-
-trap_fail:
-   j	trap_fail
-
+ 
+super_entry:
+	csrr	x6,	sstatus
+	li		x7,	~(1<<8)
+	and	x6,	x6,	x7
+	csrw	sstatus,		x6
+ 
+	la		x8,	user_entry
+	csrw	sepc,	x8
+	sret
+ 
+user_entry:
+	addi 	x12,	x12,	1
+	ebreak
+ 
+u_after:
+	j 		u_after
+ 
+ 
+s_trap_handle:
+	csrr	x5,	scause
+	csrr	x6,	sepc
+	csrr	x7,	stval
+ 
+	addi	x6,	x6,	4
+	csrw	sepc,	x6
+	sret
+ 
+ 
+m_trap_handle:
+	j	m_trap_handle
+ 
+ 
+      
 TEST_PASSFAIL
 RVTEST_CODE_END
-
-.data
+  .data
 RVTEST_DATA_BEGIN
   TEST_DATA
  

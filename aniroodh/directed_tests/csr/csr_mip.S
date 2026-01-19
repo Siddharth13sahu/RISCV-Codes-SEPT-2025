@@ -1,93 +1,66 @@
 //****************************************************************************************
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Aniroodh Patnaik 
-//   Item : test_mtime_intrp 
-//   Date created : 5/01/2026
+//   Item : test_mie_set
+//   Date created : 11/07/2025
 //***********************************************************************************
-//   Description: 
+//   Description: Testcase says floating point instructions based on RV32F ISA
 //***********************************************************************************
-
+ 
+ 
 #include "test_macros.h"
 #include "riscv_test.h"
-
 RVTEST_RV64MF
 RVTEST_CODE_BEGIN
 
 start:
-    // Install trap handler
-    
-    la	x5,	m_trap_handler
-    csrw	mtvec,	x5
+	la		x5,	m_trap
+	csrw	mtvec,	x5
 
-    // Enable machine timer interrupt
-    csrr	x5, 	mie
-    ori	x5, 	x5, (1 << 7)     //MTIE
-    csrw	mie, 	x5
+	test2:
+	csrr	x7,	mip
+	li		x28,	(1<<7)		//MTIP
+	and	x7,	x7,	x28
+	beqz	x7,	fail			//MTIP should be 1
 
-    // Enable global interrupts
-    csrr	x5,	mstatus
-    ori	x5,	x5,	(1 << 3)   //MIE
-    csrw	mstatus,	x5
+	//clear MTIP by re-arming timer
+	li		x29,	0x0200bff8
+	ld		x30,	0(x29)
+	li		x31,	100
+	add	x30,	x30,	x31
 
-    // Program MTIMECMP
-    li	x6,	0x0200BFF8       // MTIME
-    ld	x7,	0(x6)            // current time
+	li		x29,	0x02004000
+	sd		x30,	0(x29)
 
-    li	x28, 	100              // delay
-    add	x7,	x7, 	x28
-
-    li	x29, 	0x02004000       // MTIMECMP hart 0
-    sd	x7, 	0(x29)
-
-wait:
-	wfi
-	j		wait                	  // wait for timer interrupt
-
-
-m_trap_handler:
-   csrr	x5,	mcause
-   csrr	x6,	mepc
-
-    // Check for machine timer interrupt
-   li	x7,	0x8000000000000007
-   bne	x5,	x7,	trap_fail
-
-    // Re-arm timer 
-	li	x28,	0x0200BFF8
-   ld	x29,	0(x28)
-
-   li	x30,	1000
-   add	x29,	x29,	x30
-
-   li	x31,	0x02004000
-   sd	x29,	0(x31)
+	//MTIP should be clear
+	csrr	x7,	mip
+	and	x7,	x7,	x28
+	bnez	x7,	fail
 	
-	la		x6,	after_time
- 	csrw	mepc,	x6
+	csrr	x5,	mie
+	li		x6,	~(1<<7)
+	and	x5,	x5,	x7
+	csrw	mie,	x5
 
+	jal	x1,	pass
 
-   // Skip interrupted instruction
-//	addi	x6,	x6,	4
-//	csrw	mepc,	x6
-	
 	mret
-
-after_time:
-	j	after_time
-
-trap_fail:
-   j	trap_fail
 
 TEST_PASSFAIL
 RVTEST_CODE_END
 
-.data
+
+  .data
 RVTEST_DATA_BEGIN
   TEST_DATA
- 
+
 inp_data:
-  .word 0xDEADBEEF
-  .word 0x12345678
+  .float 100.25 //0
+  .float 200.50 //4
+  .dword 0x00000000 //8
+  .float -200.50 //10
+  .float -200.50 //10
+  .dword 0xabcdef6612345678 //14
   .word 0x584944fc
   .word 0x558f5366
   .word 0x558f5366

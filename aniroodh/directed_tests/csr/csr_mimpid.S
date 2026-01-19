@@ -1,10 +1,10 @@
 //****************************************************************************************
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Aniroodh Patnaik 
-//   Item : CSR Read
-//   Date created : 11/07/2025
+//   Item : test_mimpid_rd_wr
+//   Date created: 
 //***********************************************************************************
-//   Description: Testcase says floating point instructions based on RV32F ISA
+//   Description: To read andd write to the mimpid register
 //***********************************************************************************
  
  

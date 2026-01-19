@@ -1,93 +1,55 @@
 //****************************************************************************************
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Aniroodh Patnaik 
-//   Item : test_mtime_intrp 
-//   Date created : 5/01/2026
+//   Item : test_mcause 
+//   Date created : 11/07/2025
 //***********************************************************************************
-//   Description: 
+//   Description: to read the mcause csr to know the reason of trap
 //***********************************************************************************
-
+ 
+ 
 #include "test_macros.h"
 #include "riscv_test.h"
-
 RVTEST_RV64MF
 RVTEST_CODE_BEGIN
 
-start:
-    // Install trap handler
+	li		gp,	3
+Initialize:
+   csrr		x20,	mstatus
+	la		x5,	trp_handle
+	csrw		mtvec,	x5
+
+Test_1_trp_trigger:                                 
     
-    la	x5,	m_trap_handler
-    csrw	mtvec,	x5
+	ecall	
+	li   	gp,	1
+	j		end_trp
+    
+trp_handle:                              
+    
+	csrr		x6,	mcause
+	csrr		x7,	mepc
 
-    // Enable machine timer interrupt
-    csrr	x5, 	mie
-    ori	x5, 	x5, (1 << 7)     //MTIE
-    csrw	mie, 	x5
+	addi		x7,	x7,	4
+	csrw		mepc,	x7
 
-    // Enable global interrupts
-    csrr	x5,	mstatus
-    ori	x5,	x5,	(1 << 3)   //MIE
-    csrw	mstatus,	x5
-
-    // Program MTIMECMP
-    li	x6,	0x0200BFF8       // MTIME
-    ld	x7,	0(x6)            // current time
-
-    li	x28, 	100              // delay
-    add	x7,	x7, 	x28
-
-    li	x29, 	0x02004000       // MTIMECMP hart 0
-    sd	x7, 	0(x29)
-
-wait:
-	wfi
-	j		wait                	  // wait for timer interrupt
-
-
-m_trap_handler:
-   csrr	x5,	mcause
-   csrr	x6,	mepc
-
-    // Check for machine timer interrupt
-   li	x7,	0x8000000000000007
-   bne	x5,	x7,	trap_fail
-
-    // Re-arm timer 
-	li	x28,	0x0200BFF8
-   ld	x29,	0(x28)
-
-   li	x30,	1000
-   add	x29,	x29,	x30
-
-   li	x31,	0x02004000
-   sd	x29,	0(x31)
-	
-	la		x6,	after_time
- 	csrw	mepc,	x6
-
-
-   // Skip interrupted instruction
-//	addi	x6,	x6,	4
-//	csrw	mepc,	x6
-	
 	mret
 
-after_time:
-	j	after_time
+end_trp:
+	TEST_PASSFAIL
 
-trap_fail:
-   j	trap_fail
-
-TEST_PASSFAIL
 RVTEST_CODE_END
-
-.data
+  .data
 RVTEST_DATA_BEGIN
   TEST_DATA
- 
+
 inp_data:
-  .word 0xDEADBEEF
-  .word 0x12345678
+  .float 100.25						 	//0
+  .float 200.50						 	//4
+  .dword 0x00000000 						//8
+  .float -200.50 							//10
+  .float -200.50 							//10
+  .dword 0xabcdef6612345678 			//14
   .word 0x584944fc
   .word 0x558f5366
   .word 0x558f5366
@@ -126,4 +88,5 @@ inp_data:
   .word 0x28cb8c74
   .word 0x28cb8c74
 RVTEST_DATA_END
+
 
