@@ -15,9 +15,31 @@
 #include "test_macros.h"
 #include "riscv_test.h"
  
-RVTEST_RV64SF
+RVTEST_RV64MF
 RVTEST_CODE_BEGIN
 
+
+machine_entry:
+      
+      la   x4, supervisor_entry
+      csrw mepc, x4
+
+      csrr x5, mstatus
+      li   x6, ~(3 << 11)   //mstatus.mpp=2'b01 for jump to S-mode 
+      and  x5, x5, x6       //mstatus.mpp=2'b00 for jump to U-mode
+      li   x6, (1 << 11)
+      or   x5, x5, x6
+      
+      csrw mstatus, x5
+      csrr x7, mstatus
+      
+      csrr x5, mstatus
+      li   x6, ~(1 << 8)
+      and  x5, x5, x6
+      csrw mstatus, x5
+      csrr x7, mstatus
+
+      mret
   
 supervisor_entry:
       csrr x5, sstatus

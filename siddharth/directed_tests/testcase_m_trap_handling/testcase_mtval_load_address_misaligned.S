@@ -4,11 +4,11 @@
  
 //   Owner: Siddharth Sahu 
  
-//   Item : CSR Read
-//   Date created : 11/07/2025
+//   Item : testcase_mcause_load_address_misaligned
+//   Date created : 19/01/2026
  
 //***********************************************************************************
-//   Description: Testcase says floating point instructions based on RV32F ISA
+//   Description: Testcase says value in mtval after load misaligned addr
 //***********************************************************************************
 
 
@@ -79,40 +79,12 @@ inp_data:
   .word 0x558f5366
   .word 0x29df2fb1
   .word 0x29df2fb1
-  .word 0x40053e92
-  .word 0x40053e92
-  .word 0x17010699
-  .word 0x17010699
-  .word 0x594b9169
-  .word 0x594b9169
-  .word 0x64cd11c7
-  .word 0x64cd11c7
-  .word 0x6133a31e
-  .word 0x6133a31e
-  .word 0x2a9e3a3d
-  .word 0x2a9e3a3d
-  .word 0x59f86117
-  .word 0x59f86117
-  .word 0x39214611
-  .word 0x39214611
-  .word 0x6ec633f5
-  .word 0x6ec633f5
-  .word 0x4910a7b3
-  .word 0x4910a7b3
-  .word 0x3392ec72
-  .word 0x3392ec72
-  .word 0x6c3af175
-  .word 0x6c3af175
-  .word 0x74555adb
-  .word 0x74555adb
-  .word 0x360a50f7
-  .word 0x360a50f7
-  .word 0x39febbec
-  .word 0x39febbec
   .word 0x28cb8c74
   .word 0x28cb8c74
  
 RVTEST_DATA_END
+
+
 
 
 
