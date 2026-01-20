@@ -5,10 +5,10 @@
 //   Owner: Siddharth Sahu 
  
 //   Item : testcase_stval_load_address_misaligned 
-//   Date created : 19/01/2026
+//   Date created : 20/01/2026
  
 //***********************************************************************************
-//   Description: Testcase says creating and handling load misaligned address in S-mode
+//   Description: Testcase says about reading stval value for load misaligned address in S-mode
 //***********************************************************************************
 
 
@@ -73,6 +73,7 @@ s_exp_handler:
       la x9, checker
       csrr x11,scause
       csrr x12,sepc        
+      csrr x12,stval        
       //addi x12,x12,4      
 
       csrw sepc, x9

@@ -5,7 +5,7 @@
 //   Owner: Siddharth Sahu 
  
 //   Item : testcase_stvec 
-//   Date created : 17/01/2026
+//   Date created : 20/01/2026
  
 //***********************************************************************************
 //   Description: Testcase says exception handling by using stvec CSR in S mode

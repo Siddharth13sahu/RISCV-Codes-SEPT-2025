@@ -5,7 +5,7 @@
 //   Owner: Siddharth Sahu 
  
 //   Item : test_mstatus_xs
-//   Date created : 17/01/2026
+//   Date created : 20/01/2026
  
 //***********************************************************************************
 //   Description: Testcase says about variation of XS bit in mstatus.

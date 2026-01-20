@@ -5,7 +5,7 @@
 //   Owner: Siddharth Sahu 
  
 //   Item : test_sstatus_spp
-//   Date created : 17/01/2026
+//   Date created : 20/01/2026
  
 //***********************************************************************************
 //   Description: Testcase says about the mode jump from M->S->U
