@@ -1,10 +1,10 @@
 //*********************************************************************
 //	Copyright 2026 Scaledge India Pvt Ltd - ALl RIghts REserved.
 //	Owner: Samarth Patnaik
-// 	Item : csr_mcause_ld_st
-//	Date created : 11/07/2025
+// 	Item : csr_mcause_ld
+//	Date created : 20/01/2026
 //*********************************************************************
-//	Description : Testcase shows the behaviour of mcause register when a load/store exception is generated.
+//	Description : Testcase shows the behaviour of mcause register when a load exception is generated.
 //*********************************************************************
 #include "test_macros.h"
 #include "riscv_test.h"
@@ -14,31 +14,33 @@ RVTEST_CODE_BEGIN
 
 test_read:
 	csrr x1, mcause
-test_store_mepc:
-	la x2, pass
-	csrw mepc, x2
 
 test_mtvec:
 	la x1, trap_handler
 	csrw mtvec, x1
 
 test_load_exc:
-	la x2, inp_data
+	li x2, 0
 	lw x1, -1(x2)
 
+.align 4
 trap_handler:
+	la x1, test_pass
+	csrw mepc, x1
 	csrr x5, mcause
-	li x6, (1<<5) 	//Load Access Fault
-	bne x6, x5, fail
-pass:
+	li x6, 4 	//Load Addr Misalogned
+	bne x6, x5, test_fail
+	mret
+test_pass:
 	li x1, 0x80000004
 	csrw mtvec, x1
 	ecall
 
-fail:
+test_fail:
+	li x1, 0x80000004
+	csrw mtvec, x1
 	ebreak	
-	
-.align 4	
+		
 
   TEST_PASSFAIL
 

@@ -17,18 +17,24 @@ RVTEST_CODE_BEGIN
 
 test_read:
 	csrr x1, mcause
-test_store_mepc:
-	la x2, pass
-	csrw mepc, x2
 
 test_mtvec:
 	la x1, trap_handler
 	csrw mtvec, x1
 
+test_set_mie:
+	li x1, (1<<7)
+	csrw mie, x1
+
+	li x1, (1<<3)
+	csrr x2, mstatus
+	or x1, x2, x1
+	csrw mstatus, x1
+
 test_intr_gen:
 	li t0, MTIME
 	ld x1, 0(t0)
-	li x2, 1000
+	li x2, 100
 	add x2, x2,x1
 	li t1, MTIMECMP
 	sd x2, 0(t1)
@@ -37,17 +43,26 @@ test_wait_intr:
 	wfi
 	j test_wait_intr		
 
+.align 4
 trap_handler:
+	csrw mie, 0
+	la x2, test_pass
+	csrw mepc, x2
 	csrr x5, mcause
-	li x6, (1<<7) 		//Timer Interrupt
-	bne x6, x5, fail
+	li x6, (1<<63)
+	li x4, 7
+	or x6, x6,x4		//Timer Interrupt
+	bne x6, x5, test_fail
 	mret
-pass:
+
+test_pass:
 	li x1, 0x80000004
 	csrw mtvec, x1
 	ecall
 
-fail:
+test_fail:
+	li x1, 0x80000004
+	csrw mtvec, x1
 	ebreak	
 	
 .align 4	

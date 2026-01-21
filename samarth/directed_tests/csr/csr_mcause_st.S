@@ -2,9 +2,9 @@
 //	Copyright 2026 Scaledge India Pvt Ltd - ALl RIghts REserved.
 //	Owner: Samarth Patnaik
 // 	Item : csr_mcause_st
-//	Date created : 11/07/2025
+//	Date created : 20/01/2026
 //*********************************************************************
-//	Description : Testcase shows the behaviour of mcause register when a store exception is generated.
+//	Description : Testcase shows the behaviour of mcause register when a store misaligned exception is generated.
 //*********************************************************************
 #include "test_macros.h"
 #include "riscv_test.h"
@@ -14,31 +14,33 @@ RVTEST_CODE_BEGIN
 
 test_read:
 	csrr x1, mcause
-test_store_mepc:
-	la x2, pass
-	csrw mepc, x2
 
 test_mtvec:
 	la x1, trap_handler
 	csrw mtvec, x1
 
-test_st_exc:
-	la x2, inp_data
-	sw -1(x2), 0x1234
+test_load_exc:
+	li x2, 0
+	sw x1, -1(x2)
 
+.align 4
 trap_handler:
+	la x1, test_pass
+	csrw mepc, x1
 	csrr x5, mcause
-	li x6, (1<<7) 	//Load Access Fault
-	bne x6, x5, fail
-pass:
+	li x6, 6 	//Load Addr Misaligned
+	bne x6, x5, test_fail
+	mret
+test_pass:
 	li x1, 0x80000004
 	csrw mtvec, x1
 	ecall
 
-fail:
+test_fail:
+	li x1, 0x80000004
+	csrw mtvec, x1
 	ebreak	
-	
-.align 4	
+		
 
   TEST_PASSFAIL
 

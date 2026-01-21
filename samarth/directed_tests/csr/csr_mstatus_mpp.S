@@ -40,9 +40,8 @@ test_s_entry:
 
 test_u_entry:
 	li x2, 0x99999999
-	li x2, 0x80000004
-	csrw mtvec, x2
 	ecall
+
 .align 4	
 
   TEST_PASSFAIL

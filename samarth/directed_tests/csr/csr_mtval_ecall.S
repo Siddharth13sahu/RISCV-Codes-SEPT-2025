@@ -14,9 +14,6 @@ RVTEST_CODE_BEGIN
 
 test_read:
 	csrr x1, mcause
-test_store_mepc:
-	la x2, pass
-	csrw mepc, x2
 
 test_mtvec:
 	la x1, trap_handler
@@ -25,20 +22,18 @@ test_mtvec:
 test_ecall_exc:
 	ecall
 
+.align 4
 trap_handler:
+	la x1, test_pass
+	csrw mepc, x1
 	csrr x5, mcause
-	li x6, (1<<11) 	//Load Access Fault
-	bne x6, x5, fail
-pass:
-	csrr x1, mtval 	//returns 0
+	mret
+
+test_pass:
+	csrr x1,mtval 	//0
 	li x1, 0x80000004
 	csrw mtvec, x1
 	ecall
-
-fail:
-	ebreak	
-	
-.align 4	
 
   TEST_PASSFAIL
 

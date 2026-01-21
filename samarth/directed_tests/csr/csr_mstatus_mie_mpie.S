@@ -44,13 +44,15 @@ test_wait_intr:
 	
 .align 4
 test_trap:
-	csrr x5, mie
-	csrr x6, mpie
+	csrr x5, mie 		//0x80, MTIE set HIGH
+	csrr x6, mstatus	//0X7880, 
 
 test_clear_trap:
 	csrw mie, x0
 	li x1, 0x80000004
 	csrw mtvec, x1
+	csrr x6, mstatus	//0X7880, 
+	
 
   TEST_PASSFAIL
 

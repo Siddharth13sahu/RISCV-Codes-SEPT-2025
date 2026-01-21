@@ -1,7 +1,7 @@
 //*********************************************************************
 //	Copyright 2026 Scaledge India Pvt Ltd - ALl RIghts REserved.
 //	Owner: Samarth Patnaik
-// 	Item :csr_mstatus_spp
+// 	Item :csr_sstatus_spp
 //	Date created : 19/01/2026
 //*********************************************************************
 //	Description : Testcase about sstatus, changing mode from S --> U.

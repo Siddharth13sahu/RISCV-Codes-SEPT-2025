@@ -35,7 +35,8 @@ test_set_sie:
 
 test_change_mode:
 	li x1, ~(3<<11)
-	and x1, x1, mstatus
+	csrr x2, mstatus
+	and x1, x1, x2
 	li x2, (1<<11)
 	or x1, x1, x2
 	csrw mstatus, x1
@@ -43,8 +44,8 @@ test_change_mode:
 
 test_s_entry:
 	csrr x1, sstatus
-	//li x3, (1<<5)
-	//csrw sie, x3  //for sie
+	li x3, (1<<5)
+	csrw sie, x3  //for sie
     	li x5, (1<<1)
     	or x1, x1, x5
     	csrw sstatus, x1 //sie globally
@@ -64,7 +65,8 @@ test_wait_intr:
 .align 4
 test_trap:
 	csrr x5, sie
-	csrr x6, spie
+	//csrr x6, spie
+	csrr x6, sstatus
 
 test_clear_trap:
 	csrw sie, x0

@@ -14,9 +14,6 @@ RVTEST_CODE_BEGIN
 
 test_read:
 	csrr x1, mepc
-test_store_mepc:
-	la x2, sample
-	csrw mepc, x2
 
 test_mtvec:
 	la x1, trap_handler
@@ -24,12 +21,14 @@ test_mtvec:
 
 test_ecall:
 	ecall
+	j test_fail
 
+.align 4		
 trap_handler:
-	la x1, sample
-	bne x1, mepc, fail
+	csrr x2, mepc	//which address exception generated
+	la x1, sample	
+	csrw mepc, x1 	//jump to mepc
 	mret
-.align 4	
 
 sample:
 	csrr x1, mepc
@@ -37,7 +36,7 @@ sample:
 	csrw mtvec, x1
 	ecall
 
-fail:
+test_fail:
 	ebreak	
 	
 

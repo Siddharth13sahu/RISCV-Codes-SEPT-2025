@@ -2,7 +2,7 @@
 //	Copyright 2026 Scaledge India Pvt Ltd - ALl RIghts REserved.
 //	Owner: Samarth Patnaik
 // 	Item : csr_mcause_ill
-//	Date created : 19/01/2025
+//	Date created : 19/01/2026
 //*********************************************************************
 //	Description : Testcase shows the behaviour of mcause register when an illegal exception is generated in M-mode.
 //*********************************************************************
@@ -14,28 +14,32 @@ RVTEST_CODE_BEGIN
 
 test_read:
 	csrr x1, mcause
-test_store_mepc:
-	la x2, pass
-	csrw mepc, x2
 
 test_mtvec:
 	la x1, trap_handler
 	csrw mtvec, x1
 
 test_ill_exc:
-	csrw mvendorid, 0x1234 	//Writing to a Read Type register 
-
+	li x1, 2011
+	csrw marchid, x1
+.align 4
 trap_handler:
+	la x1, test_pass
+	csrw mepc, x1
 	csrr x5, mcause
-	li x6, (1<<2) 		//Illegal exception
-	bne x6, x5, fail
-pass:
+	li x6, 2		//Breakpoint exception
+	bne x6, x5, test_fail
+	mret
+
+test_pass:
 	li x1, 0x80000004
 	csrw mtvec, x1
-	ecall
+	ebreak
 
-fail:
-	ebreak	
+test_fail:
+	li x1, 0x80000004
+	csrw mtvec, x1
+	ecall	
 	
 .align 4	
 

@@ -4,17 +4,13 @@
 // 	Item : csr_stvec
 //	Date created : 20/01/2026
 //*********************************************************************
-//	Description : Testcase shows the behaviour of stvec when an exception is generated in M-mode.
+//	Description : Testcase shows the behaviour of stvec when an exception is generated in S-mode.
 //*********************************************************************
 #include "test_macros.h"
 #include "riscv_test.h"
 
 RVTEST_RV64SF
 RVTEST_CODE_BEGIN
-
-test_store_sepc:
-	la x2, test_pass
-	csrw sepc, x2
 
 test_stvec:
 	la x1, trap_handler
@@ -23,7 +19,10 @@ test_stvec:
 test_ecall_exc:
 	ecall
 
+.align 4	
 trap_handler:
+	la x2, test_pass
+	csrw sepc, x2
 	csrr x1, scause	
 test_pass:
 	li x1, 0x80000004
@@ -31,6 +30,8 @@ test_pass:
 	ecall
 
 test_fail:
+	li x1, 0x80000004
+	csrw stvec, x1
 	ebreak	
 	
 .align 4	

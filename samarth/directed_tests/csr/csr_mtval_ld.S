@@ -4,7 +4,7 @@
 // 	Item : csr_mtval_ld
 //	Date created : 19/01/2026
 //*********************************************************************
-//	Description : Testcase shows the value of mtval which stores the faulty pc value that generated the load exception.
+//	Description : Testcase shows the value of mtval which stores the illegal address value that generated the load exception.
 //*********************************************************************
 #include "test_macros.h"
 #include "riscv_test.h"
@@ -14,32 +14,33 @@ RVTEST_CODE_BEGIN
 
 test_read:
 	csrr x1, mcause
-test_store_mepc:
-	la x2, pass
-	csrw mepc, x2
 
 test_mtvec:
 	la x1, trap_handler
 	csrw mtvec, x1
 
 test_load_exc:
-	la x2, inp_data
+	li x2, 0
 	lw x1, -1(x2)
 
+.align 4
 trap_handler:
+	la x1, test_pass
+	csrw mepc, x1
 	csrr x5, mcause
-	li x6, (1<<5) 	//Load Access Fault
-	bne x6, x5, fail
-pass:
-	csrr x1, mtval
+	li x6, 4 	//Load Addr Misalogned
+	bne x6, x5, test_fail
+	mret
+test_pass:
+	csrr x1,mtval 	//Illegal address value
 	li x1, 0x80000004
 	csrw mtvec, x1
 	ecall
 
-fail:
+test_fail:
+	li x1, 0x80000004
+	csrw mtvec, x1
 	ebreak	
-	
-.align 4	
 
   TEST_PASSFAIL
 

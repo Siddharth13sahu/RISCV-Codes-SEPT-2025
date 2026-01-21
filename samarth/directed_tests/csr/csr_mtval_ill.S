@@ -14,31 +14,33 @@ RVTEST_CODE_BEGIN
 
 test_read:
 	csrr x1, mcause
-test_store_mepc:
-	la x2, pass
-	csrw mepc, x2
 
 test_mtvec:
 	la x1, trap_handler
 	csrw mtvec, x1
 
 test_ill_exc:
-	csrw mvendorid, 0x1234 	//Writing to a Read Type register 
+	li x1, 100
+	csrw marchid, x1  //Illegal
 
+.align 4
 trap_handler:
+	la x1, test_pass
+	csrw mepc, x1
 	csrr x5, mcause
-	li x6, (1<<2) 		//Illegal exception
-	bne x6, x5, fail
-pass:
-	csrr x1, mtval
+	li x6, 2 	//store Addr Misalogned
+	bne x6, x5, test_fail
+	mret
+test_pass:
+	csrr x1,mtval 	//Illegal address value
 	li x1, 0x80000004
 	csrw mtvec, x1
 	ecall
 
-fail:
-	ebreak	
-	
-.align 4	
+test_fail:
+	li x1, 0x80000004
+	csrw mtvec, x1
+	ebreak
 
   TEST_PASSFAIL
 

@@ -4,7 +4,7 @@
 // 	Item : csr_scause_ld
 //	Date created : 20/01/2026
 //*********************************************************************
-//	Description : Testcase shows the behaviour of scause register when a Load Access FAult is generated in S-mode.
+//	Description : Testcase shows the behaviour of scause register when a Load Address misaligned is generated in S-mode.
 //*********************************************************************
 #include "test_macros.h"
 #include "riscv_test.h"
@@ -30,13 +30,16 @@ test_mode_change:
 	mret
 
 test_sv_entry:
+	la x1, trap_handler
+	csrw stvec, x1
 	la x1, inp_data
-	lw x2, -1(x1) 	//ld Access Fault
+	lw x2, -1(x1) 	//ld Address misaligned
+
 trap_handler:
 	la x1, test_pass
 	csrw sepc, x1
 	csrr x5, scause
-	li x6, (1<<5) 		//Load exception
+	li x6, 4		//Load exception
 	bne x6, x5, test_fail
 	sret
 test_pass:
@@ -45,6 +48,8 @@ test_pass:
 	ecall
 
 test_fail:
+	li x1, 0x80000004
+	csrw stvec, x1
 	ebreak	
 	
 .align 4	
