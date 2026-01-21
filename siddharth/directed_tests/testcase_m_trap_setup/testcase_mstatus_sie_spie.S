@@ -38,7 +38,7 @@ machine_entry:
     csrw mideleg, x5
     csrr x7, mideleg
 
-    
+write_mie:    
     csrr x7, mie
     li x8, 0x20      //for STIE bit
     csrw mie, x8
@@ -55,16 +55,18 @@ supervisor_entry:
     or x5, x5, x7
     csrw sstatus, x5 //for SIE bit 
     csrr x7, sstatus
-    
+
+write_sie:    
     li x8, 0x20      //for STIE bit
-    csrw sie, x8      //for STIE bit of sie
+    csrw sie, x8     //for STIE bit of sie
     csrr x7, sie
 
 
-    la x9, etrap
+    la x9, trap_handler
     csrw stvec, x9
+
+interrupt_gen:
     li x5, MTIME
-    //li x7, 0x100
     ld x8, 0x0(x5)
     
     li x6, MTIMECMP
@@ -73,7 +75,8 @@ supervisor_entry:
     nop
     nop
     nop
-
+    
+    addi x8, x8, 0xf
     sd x8, 0x0(x6)
 
     li x5, MTIME
@@ -83,6 +86,21 @@ supervisor_entry:
 loop:
     wfi
     csrr x10, sip
+    li x2, 0x20 
+    csrw sip, x2
+    csrr x10, sip
+read1:
+    li x5, MTIME
+    ld x8, 0x0(x5)
+
+read2:    
+    li x5, MTIMECMP
+    ld x8, 0x0(x6)
+    
+    addi x14, x14, 0x1
+    li x15, 0xf
+    beq x14, x15, fail
+    
     beqz x10, loop
 
     nop
@@ -91,9 +109,11 @@ loop:
     csrw mepc,x9
     li x11, 0x80000004
     csrw mtvec, x11
+    j pass
+
 
 .align 4
-etrap: 
+trap_handler: 
       csrr x5, scause
       la x9, pass
       csrw sepc,x9

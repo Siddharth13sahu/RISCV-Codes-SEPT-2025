@@ -41,7 +41,7 @@ test_interrupt_generation:
     csrr x7, mip
     
 
-    la x9, etrap
+    la x9, trap_handler
     csrw mtvec, x9
 
     li x5, MTIME
@@ -61,10 +61,10 @@ test_interrupt_generation:
     ld x8, 0x0(x5)
 
 
-loop_till interrupt:
+loop_till_interrupt:
     wfi
     csrr x10, mip
-    beqz x10, loop
+    beqz x10, loop_till_interrupt
 
     nop
     nop
