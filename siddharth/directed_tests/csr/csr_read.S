@@ -28,11 +28,33 @@ test:
       li x6, 0x12345678
 	    amoswap.d x7, x6, (x4)
       
-      csrr x5, misa
       csrr x5, marchid
       csrr x5, mvendorid
       csrr x5, mimpid
       csrr x5, mhartid
+      csrr x5, misa
+
+      li x6, (1<<7)
+      or x5, x5, x6
+      csrw misa, x5
+
+
+      li x5, 0xffff
+      csrw mie, x5
+      csrw mip, x5
+      csrw sie, x5
+      csrw sip, x5
+      csrw sepc, x5
+
+      csrr x5, mie
+      csrr x5, mip
+      csrr x5, sie
+      csrr x5, sip
+      csrr x5, sepc
+
+
+      j pass
+
 
   
  

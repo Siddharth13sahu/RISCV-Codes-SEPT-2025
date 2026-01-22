@@ -56,7 +56,7 @@ no_exception:
 .align 4
 s_exp_handler:
       la x9, label_pass
-      csrr x11,scause
+      csrr x5,scause
       csrr x12,sepc        
       //addi x12,x12,4      
 

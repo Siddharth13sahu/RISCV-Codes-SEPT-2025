@@ -69,7 +69,7 @@ no_exception:
 
 s_exp_handler:
       la x9, checker
-      csrr x11,scause
+      csrr x5,scause
       csrr x12,sepc        
       //addi x12,x12,4      
 
