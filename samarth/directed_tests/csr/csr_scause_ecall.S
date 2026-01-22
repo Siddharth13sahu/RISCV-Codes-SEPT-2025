@@ -31,18 +31,17 @@ test_mode_change:
 
 test_sv_entry:
 	ecall
-
+.align 4
 trap_handler:
 	la x1, test_pass
-	csrw sepc, x1
-	csrr x5, scause
-	li x6, (1<<9) 		//ECALL exception
-	bne x6, x5, test_fail
-	sret
-
-test_pass:
+	csrw mepc, x1
 	li x1, 0x80000004
-	csrw stvec, x1
+	csrw mtvec, x1
+	csrr x5, mcause
+	li x6, 9 		//ecall exception
+	bne x6, x5, test_fail
+	mret
+test_pass:
 	ecall
 
 test_fail:

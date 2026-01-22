@@ -30,18 +30,19 @@ test_mode_change:
 	mret
 
 test_sv_entry:
-	csrw mvendorid, 0x1234 	//Writing to a Read Type register 
+	li x1, 0x1234
+	csrw mvendorid, x1 	//Writing to a Read Type register 
 
 trap_handler:
 	la x1, test_pass
-	csrw sepc, x1
-	csrr x5, scause
-	li x6, (1<<2) 		//Illegal exception
-	bne x6, x5, test_fail
-	sret
-test_pass:
+	csrw mepc, x1
 	li x1, 0x80000004
-	csrw stvec, x1
+	csrw mtvec, x1
+	csrr x5, mcause
+	li x6, 2 		//Illegal exception
+	bne x6, x5, test_fail
+	mret
+test_pass:
 	ecall
 
 test_fail:

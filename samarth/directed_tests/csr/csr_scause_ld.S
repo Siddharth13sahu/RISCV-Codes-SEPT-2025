@@ -24,7 +24,7 @@ test_mode_change:
 	csrr x1, mstatus
 	li x2, ~(3<<11)
 	and x1,x2,x1
-	li x3, (1<<11)	//S-MOde
+	li x3, (1<<11)	//S-Mode
 	or x1, x3,x1
 	csrw mstatus, x1
 	mret
@@ -32,24 +32,26 @@ test_mode_change:
 test_sv_entry:
 	la x1, trap_handler
 	csrw stvec, x1
-	la x1, inp_data
+
+test_trap_gen:
+	li x1, 0
 	lw x2, -1(x1) 	//ld Address misaligned
 
+.align 4
 trap_handler:
 	la x1, test_pass
-	csrw sepc, x1
-	csrr x5, scause
+	csrw mepc, x1	
+	csrr x5, mcause
 	li x6, 4		//Load exception
 	bne x6, x5, test_fail
-	sret
-test_pass:
 	li x1, 0x80000004
-	csrw stvec, x1
+	csrw mtvec, x1
+	mret
+.align 4
+test_pass:
 	ecall
 
 test_fail:
-	li x1, 0x80000004
-	csrw stvec, x1
 	ebreak	
 	
 .align 4	

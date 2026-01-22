@@ -4,7 +4,7 @@
 // 	Item : csr_scause_st
 //	Date created : 20/01/2026
 //*********************************************************************
-//	Description : Testcase shows the behaviour of scause register when a Store Access FAult was generated in S-mode.
+//	Description : Testcase shows the behaviour of scause register when a Store Address misaligned was generated in S-mode.
 //*********************************************************************
 #include "test_macros.h"
 #include "riscv_test.h"
@@ -31,18 +31,18 @@ test_mode_change:
 
 test_sv_entry:
 	la x1, inp_data
-	sw -1(x1), x2 	//Store Access FAult	
-
+	sw x2, -1(x1) 	//Store Addr misaligned
+.align 4
 trap_handler:
 	la x1, test_pass
-	csrw sepc, x1
-	csrr x5, scause
-	li x6, (1<<7) 		//Illegal exception
-	bne x6, x5, test_fail
-	sret
-test_pass:
+	csrw mepc, x1
 	li x1, 0x80000004
-	csrw stvec, x1
+	csrw mtvec, x1
+	csrr x5, mcause
+	li x6, 6 		// exception
+	bne x6, x5, test_fail
+	mret
+test_pass:
 	ecall
 
 test_fail:
