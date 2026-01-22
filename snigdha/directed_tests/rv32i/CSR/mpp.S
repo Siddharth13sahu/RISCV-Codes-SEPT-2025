@@ -4,8 +4,8 @@
 //   Item : mpp
 //   Date created : 12/01/2025
 //****************************************************************************************
-//   Description: 
-//  
+//   Description: MPP is a field inside the mstatus CSR that records the previous 
+                  privilege mode before entering Machine mode due to a trap.
  //***************************************************************************************
 
 #include "test_macros.h"
@@ -15,12 +15,11 @@ RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
 start:
-	csrr	t0,	mstatus
+	csrr	t0, mstatus
 
-	li	t0,	(1<<11)
+	li	t0, (1<<11)
 	csrs	mstatus,t0
 	csrw	mstatus,t0
-	csrs	mstatus,t0
 
 TEST_PASSFAIL
 RVTEST_CODE_END

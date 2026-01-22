@@ -22,14 +22,14 @@ start1:
 
 trap_start:
 	li	t1, 5
-	li	t0, 0xffffffff
+	li	t0, 0xffffffff		//load address misaligned
 	lw	t1, 0(t0)					
 	nop
 
 trap_handler:
 	csrr	t0, mcause
-	li		t1,	0
-	bne		t0, t1, trap_exit
+	li	t1, 0
+	bne	t0, t1, trap_exit
 
 	csrr	t0, mepc
 	csrr	t1, mtval

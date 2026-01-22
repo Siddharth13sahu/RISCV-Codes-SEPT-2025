@@ -14,8 +14,9 @@ RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
 start1:
-	li 		t0,	0xffffffffffffffff
-	csrr	t0, medeleg
+	li 	t0, 0xffffffffffffffff
+	csrw	medeleg,t0
+	csrr	t0,medeleg
 
  TEST_PASSFAIL
 

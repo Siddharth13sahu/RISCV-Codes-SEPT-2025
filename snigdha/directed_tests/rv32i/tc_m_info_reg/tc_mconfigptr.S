@@ -1,12 +1,11 @@
 //****************************************************************************************
 //   Copyright 2025 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Snigdharani Pradhan
-//   Item : vs
+//   Item : tc_mconfigptr
 //   Date created : 12/01/2025
-//****************************************************************************************
-//   Description: 
-//  
- //***************************************************************************************
+//***********************************************************************************
+//   Description: Reading from and writing to the machine information register mconfigptr.
+//***********************************************************************************
 
 #include "test_macros.h"
 #include "riscv_test.h"
@@ -14,15 +13,11 @@
 RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
-start:
-	csrr	t0, mstatus
+start1:
+	csrr	x11,	mconfigptr	//unknown csr
 
-	li	t0, (1<<9)
-	csrw	mstatus,t0
-	csrs	mstatus,t0
-
-	li	t0, ~(3<<9)
-	csrw	mstatus,t0
+start2:
+	csrw	mconfigptr, 	x11
 
 TEST_PASSFAIL
 RVTEST_CODE_END
@@ -32,3 +27,4 @@ RVTEST_DATA_BEGIN
 TEST_DATA
 RVTEST_DATA_END
 
+ 

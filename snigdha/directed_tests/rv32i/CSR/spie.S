@@ -15,9 +15,9 @@ RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
 start:
-	csrr	t0,	spie
+	csrr	t0, spie
 
-	li	t0,	(1<<5)
+	li	t0, (1<<5)
 	csrw	sstatus,t0
 	csrs	sstatus,t0
 

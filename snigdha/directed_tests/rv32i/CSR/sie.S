@@ -4,7 +4,7 @@
 //   Item : sie 
 //   Date created : 12/01/2025
 //****************************************************************************************
-//   Description: 
+//   Description: Reading of sie bit by enabling it.
 //   //****************************************************************************************
 
 #include "test_macros.h"
@@ -14,9 +14,9 @@ RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
 start:
-	csrr	t0,	sie
+	csrr	t0, sie
 
-	li	t0,	(1<<1)
+	li	t0, (1<<1)
 	csrw	mstatus,t0
 	csrs	mstatus,t0
 

@@ -16,6 +16,11 @@ RVTEST_CODE_BEGIN
 test1:
 	csrr	t0, mstatus
 
+	li		t1, 0xffffffffffffffff
+	csrr	t1, mstatus
+
+	csrw	t1, mstatus
+
 	TEST_PASSFAIL
 RVTEST_CODE_END
 

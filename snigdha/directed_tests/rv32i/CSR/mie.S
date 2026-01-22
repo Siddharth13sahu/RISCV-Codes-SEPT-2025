@@ -4,8 +4,8 @@
 //   Item : mie 
 //   Date created : 12/01/2025
 //****************************************************************************************
-//   Description: 
-//  
+//   Description: Mie is a machine-mode CSR that controls which interrupts are allowed 
+		  to be taken in M-mode.
  //****************************************************************************************
 
 #include "test_macros.h"
@@ -15,9 +15,12 @@ RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
 start:
-	csrr	t0,	mie
+	csrr	t0, mie
 
-	li	t0,	(1<<3)
+	li   	t0, (1<<7)      # MTIE
+	csrs	mie,t0
+
+	li	t0, (1<<3)
 	csrw	mstatus,t0
 	csrs	mstatus,t0
 

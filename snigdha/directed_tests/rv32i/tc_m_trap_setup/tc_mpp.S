@@ -1,12 +1,12 @@
 //****************************************************************************************
 //   Copyright 2025 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Snigdharani Pradhan
-//   Item : vs
+//   Item : tc_mpp
 //   Date created : 12/01/2025
 //****************************************************************************************
-//   Description: 
-//  
- //***************************************************************************************
+//   Description: MPP is a field inside the mstatus CSR that records the previous 
+//                 privilege mode before entering Machine mode due to a trap.
+//***************************************************************************************
 
 #include "test_macros.h"
 #include "riscv_test.h"
@@ -17,11 +17,8 @@ RVTEST_CODE_BEGIN
 start:
 	csrr	t0, mstatus
 
-	li	t0, (1<<9)
-	csrw	mstatus,t0
+	li	t0, (1<<11)
 	csrs	mstatus,t0
-
-	li	t0, ~(3<<9)
 	csrw	mstatus,t0
 
 TEST_PASSFAIL

@@ -1,7 +1,7 @@
 //****************************************************************************************
 //   Copyright 2025 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Snigdharani Pradhan
-//   Item : vs
+//   Item : fs
 //   Date created : 12/01/2025
 //****************************************************************************************
 //   Description: 
@@ -15,14 +15,12 @@ RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
 start:
-	csrr	t0, mstatus
+	csrr	t0,mstatus
 
-	li	t0, (1<<9)
+	li	t0,(1<<13)
 	csrw	mstatus,t0
 	csrs	mstatus,t0
 
-	li	t0, ~(3<<9)
-	csrw	mstatus,t0
 
 TEST_PASSFAIL
 RVTEST_CODE_END
