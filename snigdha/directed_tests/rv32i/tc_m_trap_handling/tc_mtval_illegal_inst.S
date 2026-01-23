@@ -1,10 +1,10 @@
 //****************************************************************************************
 //   Copyright 2025 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Snigdharani Pradhan
-//   Item : tc_mcause_store_addr_misalign
-//   Date created : 13/01/2026
+//   Item : tc_mcause_illegal_inst
+//   Date created : 12/01/2025
 //***********************************************************************************
-//   Description: generate an store address misalign and read the mcause value.
+//   Description: Perform an illegal instruction exception and read the mtval value. 
 //***********************************************************************************
 
 #include "test_macros.h"
@@ -13,38 +13,29 @@
 RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
-start1:
-	li	t0, (1<<6)
-	csrw	medeleg, t0
- 
+start:
 	la	t0, trap_handler
-	csrw	mtvec,t0
+    	csrw 	mtvec, t0
 
-trap_start:
-	li	t1, 5
-	li	t0, 0x80000000
-	lw	t1, 0(t0)
-
-	sw	t1, 1(t0)
-	nop
+	csrc	mhartid, x1
+	j	after_trap
 
 trap_handler:
-	csrr	t0, mcause
-	li	t1, 6
-	bne	t0, t1, trap_exit
+    	csrr	t0, mcause
+    	csrr 	t1, mepc
 
-	csrr	t0, mepc
-	csrr	t1, mtval
+    	addi 	t1, t1, 4
+    	csrw 	mepc, t1
+	csrr	t2,mtval
 
-trap_exit:
+after_trap:
 	mret
 
- TEST_PASSFAIL
-
+TEST_PASSFAIL
 RVTEST_CODE_END
 
-	.data
+.data
 RVTEST_DATA_BEGIN
-	TEST_DATA
-RVTEST_DATA_END
+TEST_DATA
 
+RVTEST_DATA_END

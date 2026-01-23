@@ -14,7 +14,7 @@ RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
 start1:
-	li	t0, (1<<0)
+	li	t0, (1<<6)
 	csrw	medeleg, t0
  
 	la	t0, trap_handler
@@ -25,12 +25,12 @@ trap_start:
 	li	t0, 0x80000000
 	lw	t1, 0(t0)
 
-	sw	t2, 0(t0)
+	sw	t1, 1(t0)
 	nop
 
 trap_handler:
 	csrr	t0, mcause
-	li	t1,	0
+	li	t1, 6
 	bne	t0, t1, trap_exit
 
 	csrr	t0, mepc

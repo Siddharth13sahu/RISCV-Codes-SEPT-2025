@@ -13,21 +13,29 @@
 RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
-start:
+start1:
+	li	t0, (1<<4)
+	csrw	medeleg, t0
+ 
 	la	t0, trap_handler
-    	csrw 	mtvec, t0
+	csrw	mtvec,t0
 
-	csrc	mhartid, x1
-	j	after_trap
+trap_start:
+	li	t1, 5
+	li	t0, 0x80000000
+	lw	t1, 1(t0)
+
+	nop
 
 trap_handler:
-    	csrr	t0, mcause
-    	csrr 	t1, mepc
+	csrr	t0, mcause
+	li	t1, 4
+	bne	t0, t1, trap_exit
 
-    	addi 	t1, t1, 4
-    	csrw 	mepc, t1
+	csrr	t0, mepc
+	csrr	t1, mtval
 
-after_trap:
+trap_exit:
 	mret
 
 TEST_PASSFAIL

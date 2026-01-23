@@ -4,7 +4,7 @@
 //   Item : tc_mtval_load_addr_misalign
 //   Date created : 13/01/2026
 //***********************************************************************************
-//   Description: Instruction address misaligned exception is generated and mtval is read.
+//   Description: Load address misaligned exception is generated and mtval is read.
 //***********************************************************************************
 
 #include "test_macros.h"
@@ -14,7 +14,7 @@ RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
 start1:
-	li	t0, (1<<0)
+	li	t0, (1<<4)
 	csrw	medeleg, t0
  
 	la	t0, trap_handler
@@ -29,8 +29,8 @@ trap_start:
 
 trap_handler:
 	csrr	t0, mcause
-	li		t1,	0
-	bne		t0, t1, trap_exit
+	li	t1, 4
+	bne	t0, t1, trap_exit
 
 	csrr	t0, mepc
 	csrr	t1, mtval
