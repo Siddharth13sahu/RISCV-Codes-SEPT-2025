@@ -1,10 +1,10 @@
 //****************************************************************************************
 //   Copyright 2025 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Snigdharani Pradhan
-//   Item : tc_store_addr_misalign
-//   Date created : 13/01/2026
+//   Item : tc_mtval_ecall
+//   Date created : 16/01/2026
 //***********************************************************************************
-//   Description:	Store address misaligned exception delegation 
+//   Description: Perform ecall in m-mode and read the mtval value.
 //***********************************************************************************
 
 #include "test_macros.h"
@@ -14,44 +14,31 @@ RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
 start1:
-	la   	t0, s_trap_handler
-   	csrw 	stvec, t0
-
-    	li	t0, (1<<6)
+	li	t0, (1<<11)
 	csrw	medeleg, t0
+ 
+	la	t0, m_trap_handler
+	csrw	mtvec, t0
 
-	csrr	t0, mstatus
-	li	t1, (3<<11)
-	csrc	mstatus,t1
+	li	t0, (1<<11)
+   	csrs	mstatus, t0
 
-	li	t1, (1<<11)
-	csrs	mstatus,t1
-
-	la	t0, s_mode_start
-	csrw	mepc, t0
-	
-	mret
-
-s_mode_start:
-	li	t1, 5
-	li	t0, 0x80000000
-	lw	t1, 0(t0)
-
-	sw	t2, 1(t0)
+trap_start:
+	ecall
 	nop
 
-trap_handler:
-	csrr	t0, scause
-	li	t1, 6
-	bne	t0, t1, trap_exit
+m_trap_handler:
 
-	csrr	t0, sepc
-	csrr	t1, stval
+	csrr	t0, mcause
+	li	t1, 11
+	bne	t0, t1, m_trap_exit
 
+	csrr	t0, mepc
+	csrr	t1, mtval
 	addi	t0, t0, 4
-	csrw	sepc,t0
+	csrw	mepc, t0
 
-trap_exit:
+m_trap_exit:
 	mret
 
  TEST_PASSFAIL
@@ -61,5 +48,5 @@ RVTEST_CODE_END
 	.data
 RVTEST_DATA_BEGIN
 	TEST_DATA
-RVTEST_DATA_END
 
+RVTEST_DATA_END

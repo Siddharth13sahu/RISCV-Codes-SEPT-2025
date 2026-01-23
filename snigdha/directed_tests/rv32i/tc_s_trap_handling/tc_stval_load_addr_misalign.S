@@ -1,10 +1,10 @@
 //****************************************************************************************
 //   Copyright 2025 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Snigdharani Pradhan
-//   Item : tc_store_addr_misalign
+//   Item : tc_stval_load_addr_misalign
 //   Date created : 13/01/2026
 //***********************************************************************************
-//   Description:	Store address misaligned exception delegation 
+//   Description: Load address misaligned exception generation and read stval value.
 //***********************************************************************************
 
 #include "test_macros.h"
@@ -17,7 +17,7 @@ start1:
 	la   	t0, s_trap_handler
    	csrw 	stvec, t0
 
-    	li	t0, (1<<6)
+    	li	t0, (1<<4)
 	csrw	medeleg, t0
 
 	csrr	t0, mstatus
@@ -31,18 +31,17 @@ start1:
 	csrw	mepc, t0
 	
 	mret
-
+	
 s_mode_start:
 	li	t1, 5
 	li	t0, 0x80000000
-	lw	t1, 0(t0)
-
-	sw	t2, 1(t0)
+	lw	t1, 1(t0)
+	
 	nop
 
-trap_handler:
+s_trap_handler:
 	csrr	t0, scause
-	li	t1, 6
+	li	t1, 4
 	bne	t0, t1, trap_exit
 
 	csrr	t0, sepc
@@ -52,7 +51,7 @@ trap_handler:
 	csrw	sepc,t0
 
 trap_exit:
-	mret
+	sret
 
  TEST_PASSFAIL
 

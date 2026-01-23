@@ -1,10 +1,10 @@
 //****************************************************************************************
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Snigdharani Pradhan
-//   Item : tc_ecall_u_mode
-//   Date created : 6/01/2026
+//   Item : tc_sstatus
+//   Date created : 5/01/2026
 //***********************************************************************************
-//   Description: Generate trap in u mode and handle in s mode
+//   Description: Reading the sstatus register .
 //***********************************************************************************
 
 #include "test_macros.h"
@@ -14,45 +14,29 @@ RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
 start1:
-	li	t0, (1<<8)
-   	csrw	medeleg, t0
- 
-    	la	t0, s_trap_handler
-    	csrw	stvec, t0
-
-    	li	t0, (1<<11)
+	li	t0, (1<<11)		//mpp=01(supervisor)
     	csrs	mstatus, t0
 
-    	la  	t0, s_mode_start
-    	csrw	mepc, t0
+    	la	t0, s_mode_start	//entry of s-mode
+    	csrw	mepc, t0		
 
-    	mret
+    	mret				//return to lower privilege
+
 
 s_mode_start:
-	li	t0, (1<<8)
-	csrc	sstatus, t0
+	csrr	t0, sstatus
+    	li	t0, (1<<8)		
+    	csrc	sstatus, t0		//spp=0(user)
 
-	la	t0, u_mode_start
-	csrw	sepc, t0
+    	la	t0, u_mode_start	//entry of u-mode
+   	csrw	sepc, t0
 
-	sret
+    	sret
+
 
 u_mode_start:
-	nop
-	ecall
-	nop
-
-s_trap_handler:
-	csrr	t0, scause
-	li	t1,	8
-	bne	t0, t1, s_trap_exit
-
-	csrr 	t0, sepc
-	addi	t0, t0, 4
-	csrw	sepc, t0
-
-s_trap_exit:
-	sret
+    nop
+//  j u_mode_start    
 
  TEST_PASSFAIL
 
@@ -63,6 +47,3 @@ RVTEST_DATA_BEGIN
 	TEST_DATA
 
 RVTEST_DATA_END
-
-
-

@@ -1,10 +1,10 @@
 //****************************************************************************************
 //   Copyright 2025 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Snigdharani Pradhan
-//   Item : tc_store_addr_misalign
+//   Item : tc_scause_store_addr_misalign
 //   Date created : 13/01/2026
 //***********************************************************************************
-//   Description:	Store address misaligned exception delegation 
+//   Description:Store address misaligned exception generation and read scause value.
 //***********************************************************************************
 
 #include "test_macros.h"

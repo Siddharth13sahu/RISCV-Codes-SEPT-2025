@@ -15,9 +15,13 @@ RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
 start:
-	li	t0,(1<<0)
-	csrr	t0,mstatus
-	csrs	mstatus,t0
+	li	x5,(1<<0)
+
+	csrr	x6, mstatus
+	and	x7, x6, x5	//preserve the original wpri bit
+	xor	x8, x6, x5	//attempt to modify the wpri bit
+	csrw	mstatus,x8
+	csrr	x8, mstatus
 
 TEST_PASSFAIL
 RVTEST_CODE_END

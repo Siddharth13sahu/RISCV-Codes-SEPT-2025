@@ -5,7 +5,7 @@
 //   Date created : 12/01/2025
 //****************************************************************************************
 //   Description: 
-//  
+// 
  //***************************************************************************************
 
 #include "test_macros.h"
@@ -17,10 +17,13 @@ RVTEST_CODE_BEGIN
 start:
 	csrr	t0,mstatus
 
-	li	t0,(1<<13)
-	csrw	mstatus,t0
-	csrs	mstatus,t0
+	li	t0, (3<<13)	
+	csrc	mstatus,t0	//fs=00	
+	
+	li	t0, (1<<13)
+	csrs	mstatus,t0	//fs=01
 
+	fadd.s	f0, f0, f0
 
 TEST_PASSFAIL
 RVTEST_CODE_END

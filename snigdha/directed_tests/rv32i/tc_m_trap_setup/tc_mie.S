@@ -15,14 +15,11 @@ RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
 start:
-	csrr	t0, mie
-
-	li   	t0, (1<<7)      # MTIE
-	csrs	mie,t0
+	csrr	t0, mstatus
 
 	li	t0, (1<<3)
-	csrw	mstatus,t0
-	csrs	mstatus,t0
+	csrc	mstatus,t0
+	csrs	mstatus,t0		//c768_mstatus 0x0000000a00000088
 
 TEST_PASSFAIL
 RVTEST_CODE_END

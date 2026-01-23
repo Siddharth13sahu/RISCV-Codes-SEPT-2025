@@ -14,10 +14,10 @@ RVTEST_RV64M
 RVTEST_CODE_BEGIN
 
 start:
-	csrr	t0, sie
+	csrr	t0, mstatus
 
-	li	t0, (1<<1)
-	csrw	mstatus,t0
+	li	t0, (1<<1)		//sie bit
+	csrc	mstatus,t0
 	csrs	mstatus,t0
 
 TEST_PASSFAIL
