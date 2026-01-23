@@ -52,7 +52,7 @@ test:
       csrr x5, sip
       csrr x5, sepc
 
-
+      csrr x5, pmpcfg0
       j pass
 
 

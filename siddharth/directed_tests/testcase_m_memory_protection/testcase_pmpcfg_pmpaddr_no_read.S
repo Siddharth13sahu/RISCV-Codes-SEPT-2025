@@ -4,11 +4,11 @@
  
 //   Owner: Siddharth Sahu 
  
-//   Item : test_mstatus_mpp
-//   Date created : 15/01/2026
+//   Item : test_pmpcfg_pmpaddr_no_read
+//   Date created : 23/01/2026
  
 //***********************************************************************************
-//   Description: Testcase says about the mode jump from M->S and M->U
+//   Description: Testcase says about restricting write access for U mode, to generate store access fault
 //***********************************************************************************
 
 
@@ -20,10 +20,22 @@ RVTEST_CODE_BEGIN
 
        
 machine_entry:
-      addi x3, x0, 0x1 //control bit, if x3=1, M->S, else M->U 
+      addi x3, x0, 0x0 //control bit, if x3=1, M->S, else M->U 
       
       la   x4, user_entry
       csrw mepc, x4
+      
+      li x5, 0x0d
+      csrw pmpcfg0, x5
+      csrr x6, pmpcfg0
+      
+      li x5, 0x80001000
+      csrw pmpaddr0, x5
+      csrr x6, pmpaddr0
+      
+      li x5, 0x80002000
+      csrw pmpaddr1, x5
+      csrr x6, pmpaddr1
 
       csrr x5, mstatus
       li   x6, ~(3 << 11)   //mstatus.mpp=2'b01 for jump to S-mode 
@@ -64,6 +76,10 @@ supervisor_entry:
 user_entry:
       addi x8, x0, 5
 
+      li x5, 0x80001000
+
+      sw x8, 0x4(x5)
+
       ret
 
  
@@ -92,3 +108,4 @@ inp_data:
  
 RVTEST_DATA_END
 
+  
