@@ -4,11 +4,11 @@
  
 //   Owner: Siddharth Sahu 
  
-//   Item : test_pmpcfg_pmpaddr_no_read
+//   Item : test_pmpcfg_pmpaddr_no_write
 //   Date created : 23/01/2026
  
 //***********************************************************************************
-//   Description: Testcase says about restricting read access for U mode, to generate load access fault, in TOR mode
+//   Description: Testcase says about restricting write access for U mode, to generate store access fault, TOR
 //***********************************************************************************
 
 
@@ -25,7 +25,7 @@ machine_entry:
       la   x4, user_entry
       csrw mepc, x4
       
-      li x5, 0x0e
+      li x5, 0x0d
       csrw pmpcfg0, x5
       csrr x6, pmpcfg0
       
@@ -78,7 +78,7 @@ user_entry:
 
       li x5, 0x80002010
 
-      lw x8, 0x4(x5)
+      sw x8, 0x4(x5)
 
       ret
 
