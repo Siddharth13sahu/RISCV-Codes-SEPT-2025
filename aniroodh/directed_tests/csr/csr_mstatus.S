@@ -19,13 +19,15 @@ Test1:
 
 //	li		x6,	0x80002000
 	csrr 	x5,	mstatus
-
+	li		x7,	0x00006000
 Setting_FS_Bit:
-	li		x6,	(3<<13)
-	or		x5,	x5,	x6
-	csrw	mstatus,	x5
+//	li		x6,	(3<<13)
+//	or		x5,	x5,	x6
+//	csrw	mstatus,	x5
 
 //	csrw	mstatus, x6
+
+	csrw	mstatus,	x7 
 
 Test2_floating_bit: 
 	la		x5,	inp_data

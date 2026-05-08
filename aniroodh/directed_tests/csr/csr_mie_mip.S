@@ -4,7 +4,7 @@
 //   Item : test_mie_set
 //   Date created : 11/07/2025
 //***********************************************************************************
-//   Description: Testcase says floating point instructions based on RV32F ISA
+//   Description: 
 //***********************************************************************************
  
  
@@ -16,6 +16,8 @@ RVTEST_CODE_BEGIN
 start:
 	la		x5,	m_trap
 	csrw	mtvec,	x5
+
+.align 4
 
 Test1:
 	

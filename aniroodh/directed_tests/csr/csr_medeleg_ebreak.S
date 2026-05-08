@@ -1,7 +1,7 @@
 //****************************************************************************************
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Aniroodh Patnaik 
-//   Item : CSR medeleg
+//   Item : test_medeleg_ebreak
 //   Date created : 11/07/2025
 //***********************************************************************************
 //   Description: 
@@ -55,23 +55,25 @@ user_entry:
  
 u_after:
 	j 		u_after
- 
- 
+
+.align 4
+
 s_trap_handle:
 	csrr	x5,	scause
 	csrr	x6,	sepc
 	csrr	x7,	stval
  
-	addi	x6,	x6,	4
+	li		x6,	0x80000004
 	csrw	sepc,	x6
-	sret
+	ecall
  
  
 m_trap_handle:
-	j	m_trap_handle
+	li		x6,	0x80000004
+	csrw	mtvec,	x6
+	csrr	x1,	mepc
+	j pass
  
- 
-      
 TEST_PASSFAIL
 RVTEST_CODE_END
   .data
@@ -119,4 +121,5 @@ inp_data:
   .word 0x28cb8c74
   .word 0x28cb8c74
 RVTEST_DATA_END
+
 

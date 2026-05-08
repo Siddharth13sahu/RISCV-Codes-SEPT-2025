@@ -1,41 +1,98 @@
 //****************************************************************************************
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
-//   Owner: Aniroodh Patnaik 
-//   Item : test_mtinst_rd_wr
-//   Date created : 
+//   Owner: Auroshree Anuvab Raj 
+//   Item : CSR Read
+//   Date created : 11/07/2025
 //***********************************************************************************
-//   Description: To read and write to the mtinst register
+//   Description: The following testcase is about generating a breakpoint trap in u mode and handling in s mode 
 //***********************************************************************************
- 
- 
 #include "test_macros.h"
 #include "riscv_test.h"
 RVTEST_RV64MF
 RVTEST_CODE_BEGIN
-
-Test1:
-
-	li		x6,	0x80002000
-	csrr 	x5,	mtinst
-
-	csrw	mtinst, x6
-
+start:
+ 
+li		x11,	(1<<3)		//exception 3(breakpoint)
+csrw	medeleg,	x11
+csrr	x11,	medeleg
+ 
+//install m and s mode trap handler
+handle_in_s:
+la		x5,	s_trap_handle
+csrw	stvec,	x5
+la		x5,	m_trap_handle
+csrw	mtvec,	x5
+ 
+//mode m->s
+csrr	x6,	mstatus
+li		x7,	~(3<<11)
+and	x6,	x6,	x7		//mpp=m->u
+li		x7,	(1<<11)
+or		x6,	x6,	x7		//mpp=u->s
+csrw	mstatus,		x6
+ 
+la		x8,	super_entry
+csrw	mepc,	x8
+mret
+ 
+super_entry:
+csrr	x6,	sstatus
+li		x7,	~(1<<8)
+and	x6,	x6,	x7
+csrw	sstatus,		x6
+ 
+la		x8,	user_entry
+csrw	sepc,	x8
+sret
+ 
+user_entry:
+addi 	x12,	x12,	1
+ebreak
+ 
+//test failure case
+u_after:
+j	u_after
  
  
-
+s_trap_handle:
+csrr	x5,	scause
+li		x6,	3
+bne	x5,	x6,	end_trap
+j	end_case
+ 
+end_trap:
+ecall
+ 
+end_case:
+li		x7,	0x80000004
+csrw	stvec,	x7
+ecall
+ 
+ 
+m_trap_handle:
+li		x6,	5
+ 
+traping:
+addi	x6,	x6,	-1
+beqz	x6,	end
+j	traping
+ 
+end:
+li		x7,	0x80000004
+csrw	mtvec,	x7
+ 
+ 
+ 
+      
 TEST_PASSFAIL
 RVTEST_CODE_END
   .data
 RVTEST_DATA_BEGIN
   TEST_DATA
-
+ 
 inp_data:
-  .float 100.25 //0
-  .float 200.50 //4
-  .dword 0x00000000 //8
-  .float -200.50 //10
-  .float -200.50 //10
-  .dword 0xabcdef6612345678 //14
+  .word 0xDEADBEEF
+  .word 0x12345678
   .word 0x584944fc
   .word 0x558f5366
   .word 0x558f5366
@@ -74,6 +131,7 @@ inp_data:
   .word 0x28cb8c74
   .word 0x28cb8c74
 RVTEST_DATA_END
+
 
 
 

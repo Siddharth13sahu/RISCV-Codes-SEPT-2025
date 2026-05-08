@@ -26,7 +26,7 @@ RVTEST_CODE_BEGIN
 
 		la		x6,	inp_data
 
-		addi	x18,	x18,	0x8000213F		// initialise the end addr
+		li		x18,	0x8000213F		// initialise the end addr
 
 		li 	x8, 	0x80002100  			// initialise the registers with starting addr
 //		li		x9,	0x80002200	

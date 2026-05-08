@@ -9,8 +9,6 @@ RVTEST_CODE_BEGIN
   li gp, 3
   li x1, 20
 
-
-
   # Addresses for test data
   la x5, inp_data 
  # la f4, inp_data

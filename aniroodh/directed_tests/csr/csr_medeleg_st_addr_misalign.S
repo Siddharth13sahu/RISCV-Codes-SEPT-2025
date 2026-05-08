@@ -1,41 +1,92 @@
 //****************************************************************************************
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Aniroodh Patnaik 
-//   Item : test_mtinst_rd_wr
-//   Date created : 
+//   Item : test_medelg_st_addr_misalign
+//   Date created : 12/01/2026
 //***********************************************************************************
-//   Description: To read and write to the mtinst register
+//   Description: 
 //***********************************************************************************
- 
- 
+
 #include "test_macros.h"
 #include "riscv_test.h"
 RVTEST_RV64MF
 RVTEST_CODE_BEGIN
 
-Test1:
 
-	li		x6,	0x80002000
-	csrr 	x5,	mtinst
-
-	csrw	mtinst, x6
-
+start:
+ 
+//delegate load misalignment
+	li		x11,	(1<<6)		//exception 4
+	csrw	medeleg,	x11
+	csrr	x11,	medeleg
+ 
+//install m and s mode trap handler
+handle_in_s:
+	la		x5,	s_trap_handle
+	csrw	stvec,	x5
+	la		x5,	m_trap_handle
+	csrw	mtvec,	x5
+ 
+//mode m->s
+	csrr	x6,	mstatus
+	li		x7,	~(3<<11)
+	and	x6,	x6,	x7		//mpp=u
+	li		x7,	(1<<11)
+	or		x6,	x6,	x7		//mpp=s
+	csrw	mstatus,		x6
+ 
+	la		x8,	super_entry
+	csrw	mepc,	x8
+	mret
+ 
+super_entry:
+	csrr	x6,	sstatus
+	li		x7,	~(1<<8)
+	and	x6,	x6,	x7
+	csrw	sstatus,		x6
+ 
+	la		x8,	user_entry
+	csrw	sepc,	x8
+	sret
+ 
+user_entry:
+	li		x28,	0x80002003
+	sw		x29,	0(x28)
  
  
+s_trap_handle:
+	csrr	x5,	scause
+	csrr	x6,	sepc
+	csrr	x7,	stval
+ 
+	li		x30,	4
+	bne	x5,	x30,	trap_fail
 
+	addi	x6,	x6,	4
+	csrw	sepc,	x6
+
+	sret
+	
+
+trap_fail:
+	li		gp,	1
+	j		trap_fail
+ 
+ 
+m_trap_handle:
+	j	m_trap_handle
+ 
+ 
+      
 TEST_PASSFAIL
 RVTEST_CODE_END
   .data
 RVTEST_DATA_BEGIN
   TEST_DATA
-
+ 
 inp_data:
-  .float 100.25 //0
-  .float 200.50 //4
-  .dword 0x00000000 //8
-  .float -200.50 //10
-  .float -200.50 //10
-  .dword 0xabcdef6612345678 //14
+  .word 0xDEADBEEF
+  .word 0x12345678
   .word 0x584944fc
   .word 0x558f5366
   .word 0x558f5366
@@ -74,6 +125,5 @@ inp_data:
   .word 0x28cb8c74
   .word 0x28cb8c74
 RVTEST_DATA_END
-
 
 

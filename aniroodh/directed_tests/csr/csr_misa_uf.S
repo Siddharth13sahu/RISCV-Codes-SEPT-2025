@@ -1,24 +1,24 @@
 //****************************************************************************************
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Aniroodh Patnaik 
-//   Item : test_mtinst_rd_wr
+//   Item : test_misa_rd_wr
 //   Date created : 
 //***********************************************************************************
-//   Description: To read and write to the mtinst register
+//   Description: To read and write to the misa register
 //***********************************************************************************
  
  
 #include "test_macros.h"
 #include "riscv_test.h"
-RVTEST_RV64MF
+RVTEST_RV64UF
 RVTEST_CODE_BEGIN
 
 Test1:
 
 	li		x6,	0x80002000
-	csrr 	x5,	mtinst
+	csrr 	x5,	misa
 
-	csrw	mtinst, x6
+	csrw	misa, x6
 
  
  

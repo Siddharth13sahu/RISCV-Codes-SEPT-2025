@@ -1,75 +1,72 @@
 //****************************************************************************************
+
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
-//   Owner: Aniroodh Patnaik 
-//   Item : test_mip_set
-//   Date created : 11/07/2025
+
+//   Owner: Aniroodh Patnaik
+
+//   Item :	store operation
+
+//   Date created :
+
 //***********************************************************************************
-//   Description: 
+//   Description:  
 //***********************************************************************************
- 
- 
+
 #include "test_macros.h"
+
 #include "riscv_test.h"
-RVTEST_RV64MF
+ 
+RVTEST_RV64M
+
 RVTEST_CODE_BEGIN
 
-start:
-	la		x5,	m_trap
-	csrw	mtvec,	x5
+	start:
+		initialise:
+		li gp, 3
+		la x6, inp_data
+		li x18, 0x80002140		// initialise the end addr
+		li x8, 0x80002100  			// initialise the registers with starting addr
 
-	test2:
-	csrr	x7,	mip
-	li		x28,	(1<<7)		//MTIP
-	and	x7,	x7,	x28
-	beqz	x7,	fail			//MTIP should be 1
+		Test1:
+		lh x5, 0(x6)
+		sh x5, 0(x8)
+		lh x5, 2(x6)
+		sh	x5, 2(x8)
+		lh	x5, 4(x6)
+		sh x5, 4(x8)		
+		lh	x5, 6(x6)
+		sh	x5, 6(x8)
+		lh	x5, 8(x6)
+		sh	x5, 8(x8)
+		lh	x5, 10(x6)
+		sh	x5, 10(x8)
+		lh	x5, 12(x6)
+		sh	x5, 12(x8)	
+		lh	x5, 14(x6)
+		sh	x5, 14(x8)
+		addi x6, x6, 16
 
-	//clear MTIP by re-arming timer
-	li		x29,	0x0200bff8
-	ld		x30,	0(x29)
-	li		x31,	100
-	add	x30,	x30,	x31
+		label:
+		addi x8, x8, 16
+		bne x8, x18, Test1	
+		addi x28, x28, 2	
 
-	li		x29,	0x02004000
-	sd		x30,	0(x29)
-
-	//MTIP should be clear
-	csrr	x7,	mip
-	and	x7,	x7,	x28
-	bnez	x7,	fail
 	
-	csrr	x5,	mie
-	li		x6,	~(1<<7)
-	and	x5,	x5,	x7
-	csrw	mie,	x5
-
-	jal	x1,	pass
-
-	mret
-	
-wait:
-	j		wait
+	TEST_PASSFAIL
  
-m_trap:
-	csrr	x5,	mcause
-
-	li		x6,	0x8000000000000007
-	bne	x5,	x6,	fail
-
-TEST_PASSFAIL
 RVTEST_CODE_END
 
-
-  .data
+.data
+	
 RVTEST_DATA_BEGIN
-  TEST_DATA
+
+	TEST_DATA
 
 inp_data:
-  .float 100.25 //0
-  .float 200.50 //4
-  .dword 0x00000000 //8
-  .float -200.50 //10
-  .float -200.50 //10
-  .dword 0xabcdef6612345678 //14
+  .word 0xABCD1234
+  .word 0x06627912
+  .word 0x06627912
+  .word 0x584944fc
   .word 0x584944fc
   .word 0x558f5366
   .word 0x558f5366
@@ -107,5 +104,8 @@ inp_data:
   .word 0x39febbec
   .word 0x28cb8c74
   .word 0x28cb8c74
+ 
 RVTEST_DATA_END
+
+
 

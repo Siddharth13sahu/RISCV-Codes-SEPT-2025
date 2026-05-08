@@ -1,41 +1,64 @@
 //****************************************************************************************
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Aniroodh Patnaik 
-//   Item : test_mtinst_rd_wr
-//   Date created : 
+//   Item : 
+//   Date created : 12/01/2026
 //***********************************************************************************
-//   Description: To read and write to the mtinst register
+//   Description: 
 //***********************************************************************************
- 
- 
+
 #include "test_macros.h"
 #include "riscv_test.h"
 RVTEST_RV64MF
 RVTEST_CODE_BEGIN
 
-Test1:
 
-	li		x6,	0x80002000
-	csrr 	x5,	mtinst
+//install m mode trap handler
+initialize:
 
-	csrw	mtinst, x6
+	la		x5,	m_trap_handle
+	csrw	mtvec,	x5
+ 
+generate_trap:
+	li		x28,	0x80002003
+	lw		x29,	0(x28)
+
+end:
+	li		x6,	0x80000004
+	csrw	mtvec,	x6
+	j pass
+
+ .align 4
+trap_fail:
+	li		gp,	1
+	j		trap_fail
 
  
+m_trap_handle:
+	csrr	x5,	mcause
+	csrr	x6,	mepc
+	csrr	x7,	mtval
  
+	li		x30,	4
+	bne	x5,	x30,	trap_fail
 
+	addi	x6,	x6,	4
+	csrw	mepc,	x6
+
+	mret
+ 
+ 
+ 
+      
 TEST_PASSFAIL
 RVTEST_CODE_END
   .data
 RVTEST_DATA_BEGIN
   TEST_DATA
-
+ 
 inp_data:
-  .float 100.25 //0
-  .float 200.50 //4
-  .dword 0x00000000 //8
-  .float -200.50 //10
-  .float -200.50 //10
-  .dword 0xabcdef6612345678 //14
+  .word 0xDEADBEEF
+  .word 0x12345678
   .word 0x584944fc
   .word 0x558f5366
   .word 0x558f5366
@@ -74,6 +97,5 @@ inp_data:
   .word 0x28cb8c74
   .word 0x28cb8c74
 RVTEST_DATA_END
-
 
 

@@ -1,10 +1,10 @@
 //****************************************************************************************
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Aniroodh Patnaik 
-//   Item : test_mip_set
-//   Date created : 11/07/2025
+//   Item : test_mconfigptr_rd_wr
+//   Date created : 
 //***********************************************************************************
-//   Description: 
+//   Description: To read and write to the mconfigptr register
 //***********************************************************************************
  
  
@@ -13,52 +13,16 @@
 RVTEST_RV64MF
 RVTEST_CODE_BEGIN
 
-start:
-	la		x5,	m_trap
-	csrw	mtvec,	x5
+Test1:
 
-	test2:
-	csrr	x7,	mip
-	li		x28,	(1<<7)		//MTIP
-	and	x7,	x7,	x28
-	beqz	x7,	fail			//MTIP should be 1
+	li		x6,	0x80002000
+	csrr 	x5,	mconfigptr
 
-	//clear MTIP by re-arming timer
-	li		x29,	0x0200bff8
-	ld		x30,	0(x29)
-	li		x31,	100
-	add	x30,	x30,	x31
-
-	li		x29,	0x02004000
-	sd		x30,	0(x29)
-
-	//MTIP should be clear
-	csrr	x7,	mip
-	and	x7,	x7,	x28
-	bnez	x7,	fail
-	
-	csrr	x5,	mie
-	li		x6,	~(1<<7)
-	and	x5,	x5,	x7
-	csrw	mie,	x5
-
-	jal	x1,	pass
-
-	mret
-	
-wait:
-	j		wait
+	csrw	mconfigptr, x6
  
-m_trap:
-	csrr	x5,	mcause
-
-	li		x6,	0x8000000000000007
-	bne	x5,	x6,	fail
 
 TEST_PASSFAIL
 RVTEST_CODE_END
-
-
   .data
 RVTEST_DATA_BEGIN
   TEST_DATA
@@ -108,4 +72,5 @@ inp_data:
   .word 0x28cb8c74
   .word 0x28cb8c74
 RVTEST_DATA_END
+
 

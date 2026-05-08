@@ -1,8 +1,8 @@
 //****************************************************************************************
 //   Copyright 2023 Scaledge India Pvt Ltd - All Rights Reserved.
 //   Owner: Aniroodh Patnaik 
-//   Item : CSR medeleg
-//   Date created : 11/07/2025
+//   Item : 
+//   Date created : 12/01/2026
 //***********************************************************************************
 //   Description: 
 //***********************************************************************************
@@ -66,7 +66,7 @@ s_trap_handle:
 	csrw	sepc,	x6
 
 	sret
-
+.align 4
 trap_fail:
 	li		gp,	1
 	j		trap_fail
